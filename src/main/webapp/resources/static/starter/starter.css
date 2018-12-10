@@ -1,0 +1,246 @@
+body {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 14px;
+
+}
+
+.page-container {
+    margin: 120px auto 0 auto;
+    text-align: center;
+}
+
+/*------------------------------ NUEVOS ESTILOS ANAHI*/
+/*#f48310 2c509e  color naranja*/
+/*#2c509e  color azul*/
+
+
+html { 
+    /*background: url("#{resource['images/SharkFin.jpg']}") no-repeat center center fixed; */
+    background: url("#{resource['images/f1.jpg']}") no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+}
+
+
+img{
+    display: block;
+    margin: auto;
+    width: 100%;
+    height: auto;
+}
+#logo{
+    margin-top:25%;
+}
+#login-button{
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 3%;
+    margin: auto;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    /*    background: #2c509e70;*/
+    /*background-image: linear-gradient(to bottom right, #0c06f3c9, #f2ff00db);*/
+    background-image: linear-gradient(to bottom right, #f30606d9, #ffff00cc);
+    overflow: hidden;
+    opacity: 0.9;
+    box-shadow: 1px 5px 50px #f9f9f9;
+
+}
+#frmlog{
+    margin-top: 10%;
+}
+#mensajes{
+    font-family: 'Open Sans Condensed', sans-serif;
+    line-height: 18px;
+    color: #d22323;
+    font-weight: bolder;
+    font-size: 20px;
+    margin-top: 5%;
+}
+
+/* Login container */
+#login{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    width: 260px;
+    height: 260px;
+    padding: 1%;
+    border-radius: 5px;
+    background: rgba(3,3,3,0.25);
+    /*box-shadow: 1px 1px 50px #000;*/
+    box-shadow: 1px 1px 50px #fff;
+    display:none;
+}
+
+.close-btn{
+    position: absolute;
+    cursor: pointer;
+    font-family: 'Open Sans Condensed', sans-serif;
+    line-height: 18px;
+    top: 3px;
+    right: 3px;
+    width: 7%;
+    text-align: center;
+    border-radius: 10px;
+    opacity: .2;
+    -webkit-transition: all 2s ease-in-out;
+    -moz-transition: all 2s ease-in-out;
+    -o-transition: all 2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+
+.close-btn:hover{
+    opacity: .5;
+}
+
+/* Heading */
+h1{
+    font-family: 'Open Sans Condensed', sans-serif;
+    position: relative;
+    margin-top: 0px;
+    text-align: center;
+    font-size: 40px;
+    color: #ddd;
+    text-shadow: 3px 3px 10px #000;
+}
+
+/* Inputs */
+#j_username{
+    font-family: 'Open Sans Condensed', sans-serif;
+    text-decoration: none;
+    position: relative;
+    width: 80%;
+    display: block;
+    margin: 9px auto;
+    font-size: 17px;
+    color: #fff;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    background: rgba(3,3,3,.1);
+    -webkit-transition: all 2s ease-in-out;
+    -moz-transition: all 2s ease-in-out;
+    -o-transition: all 2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+
+#j_username:focus{
+    outline: none;
+    box-shadow: 3px 3px 10px #333;
+    background: rgba(3,3,3,.18);
+}
+
+#j_password{
+    font-family: 'Open Sans Condensed', sans-serif;
+    text-decoration: none;
+    position: relative;
+    width: 80%;
+    display: block;
+    margin: 9px auto;
+    font-size: 17px;
+    color: #fff;
+    padding: 8px;
+    border-radius: 6px;
+    border: none;
+    background: rgba(3,3,3,.1);
+    -webkit-transition: all 2s ease-in-out;
+    -moz-transition: all 2s ease-in-out;
+    -o-transition: all 2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+
+#j_password:focus{
+    outline: none;
+    box-shadow: 3px 3px 10px #333;
+    background: rgba(3,3,3,.18);
+}
+
+/* Placeholders */
+::-webkit-input-placeholder {
+    color: #ddd;  }
+:-moz-placeholder { /* Firefox 18- */
+    color: red;  }
+::-moz-placeholder {  /* Firefox 19+ */
+    color: red;  }
+:-ms-input-placeholder {  
+    color: #333;  }
+
+/* Link */
+#submit{
+    font-family: 'Open Sans Condensed', sans-serif;
+    text-align: center;
+    background: rgba(246, 247, 245,0.6);
+    position: relative;
+    width: 85%;
+    display: block;
+    margin: 30px auto;
+    font-size: 17px;
+    color: #fff;
+    padding: 5px;
+    border-radius: 6px;
+    border: none;
+    -webkit-transition: all 2s ease-in-out;
+    -moz-transition: all 2s ease-in-out;
+    -o-transition: all 2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+
+#submit:hover{
+    opacity: 0.7;
+}
+
+@media(min-device-width : 320px) 
+and (max-device-width : 480px) {
+    #login-button{
+        width: 500px;
+        height: 500px;
+    }
+    #login{
+        min-width: 60%;
+        height: 40% !important;
+    }
+    h1{
+        font-size: 100px !important;
+    }
+
+    #j_username{
+        font-size: 35px !important;
+    }
+
+    #j_password{
+        font-size: 35px !important;
+    }
+
+    #submit{
+        font-size:35px !important;
+    }
+    #mensajes{
+        font-size: 40px !important;
+    }
+    @media (orientation : landscape) {
+        #login{
+            min-width: 39%;
+            height: 60% !important;
+        }
+        #submit{
+            font-size:20px !important;
+        }
+    }
+}
+
+
+

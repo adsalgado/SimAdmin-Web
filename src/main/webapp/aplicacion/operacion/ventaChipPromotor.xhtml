@@ -1,0 +1,135 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-mobile-phone w3-margin-right w3-margin-left" /> Venta de Chip
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:focus context="pnlData" />
+
+            <p:outputPanel class="blockable" id="pnlData">
+                <p:panel header="Chip">
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel for="serie" value="Serie: " />
+                            </div>
+                            <p:inputText id="serie" value="#{ventaChipPromotorBean.serie}" maxlength="21" style="width: 60%;" 
+                                         autocomplete="off" required="true" requiredMessage="El campo 'Username' es requerido." 
+                                         disabled="#{ventaChipPromotorBean.current ne null}" />
+                            <p:spacer />
+                            <p:commandButton icon="fa fa-binoculars" action="#{ventaChipPromotorBean.search}" update="@form @([id$=msgs])" 
+                                             disabled="#{ventaChipPromotorBean.current ne null}" />
+                            <p:commandButton icon="fa fa-ban" action="#{ventaChipPromotorBean.cleanSearch}" update="@form" process="@this" >
+                                <p:resetInput target="pnlData" />
+                            </p:commandButton>
+
+                        </div>
+                    </div>
+
+                    <p:outputPanel rendered="#{ventaChipPromotorBean.current ne null}" class="ui-g ui-fluid" >
+                        <div class="ui-g-12 ui-lg-6 ui-xl-3">
+                            <div>
+                                <p:outputLabel value="Tipo de venta:" for="tipoVenta" />
+                            </div>
+                            <p:selectOneMenu id="tipoVenta" value="#{ventaChipPromotorBean.current.tipoVentaId}" 
+                                             required="true" requiredMessage="El campo 'Tipo de venta' es requerido.">
+                                <p:ajax process="@this @([id$=tipoVenta])" update="@form" />
+                                <f:selectItem itemValue="#{null}" itemLabel="[-- SELECCIONE --]" />
+                                <f:selectItem itemValue="#{1}" itemLabel="NUEVA" />
+                                <f:selectItem itemValue="#{2}" itemLabel="PORTABILIDAD" />
+                            </p:selectOneMenu>
+
+                        </div>
+
+                        <p:outputPanel class="ui-g-12 ui-lg-6 ui-xl-3"  rendered="#{ventaChipPromotorBean.current.tipoVentaId ne null}">
+                            <div>
+                                <p:outputLabel value="Compañia:" for="compania" />
+                            </div>
+                            <p:selectOneMenu id="compania" value="#{ventaChipPromotorBean.compania}" style="width:100%" converter="#{companiaConverter}" converterMessage="No converter found"
+                                             required="true" requiredMessage="El campo 'Compañia' es requerido.">
+                                <f:selectItem itemValue="#{null}" itemLabel="[-- SELECCIONE --]" />
+                                <f:selectItems value="#{ventaChipPromotorBean.companias}" var="compania" itemLabel="#{compania.nombre}" 
+                                               itemValue="#{compania}" />
+                            </p:selectOneMenu>
+
+                        </p:outputPanel>
+
+                        <p:outputPanel class="ui-g-12 ui-lg-6 ui-xl-3" rendered="#{ventaChipPromotorBean.current.tipoVentaId ne null}">
+                            <div>
+                                <p:outputLabel value="Nombre cliente:" for="nombre" />
+                            </div>
+                            <p:inputText id="nombre" value="#{ventaChipPromotorBean.current.nombreCliente}" required="true" 
+                                         requiredMessage="El Campo 'Nombre cliente' es requerido" maxlength="65"
+                                         onkeyup="this.value = this.value.toUpperCase();" />                            
+                        </p:outputPanel>
+
+                        <p:outputPanel class="ui-g-12 ui-lg-6 ui-xl-3"  rendered="#{ventaChipPromotorBean.current.tipoVentaId ne null}">
+                            <div>
+                                <p:outputLabel value="Producto:" for="producto" />
+                            </div>
+                            <p:selectOneMenu id="producto" value="#{ventaChipPromotorBean.current.productoId}" 
+                                             required="true" requiredMessage="El campo 'Producto' es requerido.">
+                                <f:selectItem itemValue="#{null}" itemLabel="[-- SELECCIONE --]" />
+                                <f:selectItem itemValue="#{1}" itemLabel="A100" />
+                                <f:selectItem itemValue="#{2}" itemLabel="U100" />
+                                <f:selectItem itemValue="#{3}" itemLabel="ACON" />
+                                <f:selectItem itemValue="#{4}" itemLabel="UCON" />
+                                <f:selectItem itemValue="#{5}" itemLabel="A150" />
+                                <f:selectItem itemValue="#{6}" itemLabel="U150" />
+                            </p:selectOneMenu>
+
+                        </p:outputPanel>
+
+                        <p:outputPanel class="ui-g-12 ui-lg-6 ui-xl-3" rendered="#{ventaChipPromotorBean.current.tipoVentaId ne null}">
+                            <div>
+                                <p:outputLabel value="Costo:" for="costo" />
+                            </div>
+                            <p:inputText id="costo" value="#{ventaChipPromotorBean.current.costo}" required="true" 
+                                         requiredMessage="El Campo 'Costo' es requerido" maxlength="4" >
+                                <p:keyFilter mask="pint" />
+                            </p:inputText>
+                        </p:outputPanel>
+
+                        <p:outputPanel class="ui-g-12 ui-lg-6 ui-xl-3" rendered="#{ventaChipPromotorBean.current.tipoVentaId ne null and ventaChipPromotorBean.current.tipoVentaId eq 2}">
+                            <div>
+                                <p:outputLabel value="DN:" for="dn" />
+                            </div>
+                            <p:inputMask id="dn" value="#{ventaChipPromotorBean.current.dn}" mask="9999999999" required="true" 
+                                         requiredMessage="El Campo 'DN' es requerido" maxlength="10" />
+                        </p:outputPanel>
+
+                        <p:outputPanel class="ui-g-12 ui-lg-6 ui-xl-3" rendered="#{ventaChipPromotorBean.current.tipoVentaId ne null and ventaChipPromotorBean.current.tipoVentaId eq 2}">
+                            <div>
+                                <p:outputLabel value="NIP:" for="nip" />
+                            </div>
+                            <p:inputMask id="nip" value="#{ventaChipPromotorBean.current.nip}" mask="9999" required="true" 
+                                         requiredMessage="El Campo 'NIP' es requerido" maxlength="4" />
+                        </p:outputPanel>
+
+                    </p:outputPanel>
+
+                    <f:facet name="footer">
+                        <p:commandButton value="Actualizar chip" icon="fa fa-save" process="@form" 
+                                         update="@form @([id$=msgs]) @([id$=pnlData])" style="padding: 3px 10px;"
+                                         disabled="#{ventaChipPromotorBean.current eq null}" 
+                                         action="#{ventaChipPromotorBean.update()}"/>
+
+                    </f:facet>
+                </p:panel>
+            </p:outputPanel>
+
+        </h:form>
+    </ui:define>
+
+</ui:composition>
+

@@ -1,0 +1,40 @@
+server:
+    contextPath: /SimAdmin-Web
+    port: 8082
+    error:
+        whitelabel:
+            enabled: false
+spring:
+    profiles: prod
+    datasource:
+        password: Temp1234569
+        testWhileIdle: true
+        url: jdbc:oracle:thin:@192.168.201.20:1521/OGGSRC
+        username: ASALGADOD
+        validationQuery: SELECT 1
+        driver-class-oracle: jdbc.driver.OracleDriver
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+            connection-timeout: 60000
+            maximum-pool-size: 5
+    jpa:
+        hibernate:
+            ddl-auto: none
+            naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        properties:
+            hibernate:
+                current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+                dialect: org.hibernate.dialect.Oracle10gDialect
+        show-sql: true
+    thymeleaf:
+        cache: false
+mx:
+    sharkit:
+        aplication:
+            primefacesTheme:
+                mytheme
+jsf:
+    PROJECT_STAGE: Production
+    FACELETS_LIBRARIES: /tags/tags.taglib.xml
+    primefaces:
+        theme: ${userSettings.currentTheme}

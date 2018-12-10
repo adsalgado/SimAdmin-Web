@@ -1,0 +1,77 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-users w3-margin-right w3-margin-left" /> Estatus de la Portabilidad
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:focus context="pnlDN" />
+            <p:outputPanel class="w3-card-8 w3-round-medium" id="pnlDN">
+                <p:panel id="pasignar">
+                    <f:facet name="header">
+                        Estatus de la Portabilidad
+                    </f:facet>
+                    <p:remoteCommand name="reload" update="@([id$=pnlTmp])" action="#{asignacionEstatusPortabilidadBean.search()}" />
+                    <p:outputPanel id="pnlTmp" >
+                        <p:dataTable id="dtDN" value="#{asignacionEstatusPortabilidadBean.chips}" editable="true" var="asignacionSP"
+                                     style="margin-top:0" emptyMessage="No se ha seleccionado el tipo de parámetro.">
+
+                            <p:ajax event="rowEdit" listener="#{asignacionEstatusPortabilidadBean.onRowEdit}"  update="@([id$=msgs])" oncomplete="reload();" />
+                            <p:ajax event="rowEditCancel" listener="#{asignacionEstatusPortabilidadBean.onRowCancel}" update="@([id$=msgs]) @([id$=dtDN])" />
+                            <p:column style="width:32px">
+                                <p:rowEditor />
+                            </p:column>
+                            <p:column headerText="ICCID">
+                                <h:outputText value="#{asignacionSP.serie}" />
+                            </p:column>
+                            <p:column headerText="Cliente">
+                                <h:outputText value="#{asignacionSP.nombreCliente}" />
+                            </p:column>
+                            <p:column headerText="Vendedor">
+                                <h:outputText value="#{asignacionSP.usuarioVendedor.nombre} #{asignacionSP.usuarioVendedor.paterno} #{asignacionSP.usuarioVendedor.materno}" />
+                            </p:column>
+                            <p:column headerText="DN Temporal">
+                                <h:outputText value="#{asignacionSP.dnTemporal}" />
+                            </p:column>
+                            <p:column headerText="DN">
+                                <h:outputText value="#{asignacionSP.dn}" />
+                            </p:column>
+                            <p:column headerText="NIP">
+                                <h:outputText value="#{asignacionSP.nip}" />
+                            </p:column>
+                            <p:column headerText="Compañía">
+                                <h:outputText value="#{asignacionSP.compania.nombre}" />
+                            </p:column>                            
+                            <p:column headerText="Fecha de Registro">
+                                <h:outputText value="#{asignacionSP.fecha}" />
+                            </p:column>
+                            <p:column headerText="Portabilidad">
+                                <p:cellEditor>
+                                    <f:facet name="output"><h:outputText style="color:#{asignacionSP.estatusPortabilidad ne null ? '#f59d44':''}" value="#{asignacionSP.estatusPortabilidad.nombre ne null ? asignacionSP.estatusPortabilidad.nombre:'[--Estatus Portabilidad--]'}" /></f:facet>
+                                    <f:facet name="input">
+                                        <p:selectOneMenu value="#{asignacionSP.estatusPortabilidad}" converter="#{estatusConverter}" converterMessage="No converter found" style="width:100%" required="true" requiredMessage="El Campo es requerido">
+                                            <f:selectItem itemValue="#{null}" itemLabel="[-- Seleccione un estatus --]" />
+                                            <f:selectItems value="#{asignacionEstatusPortabilidadBean.estatus}" var="estatus" itemLabel="#{estatus.nombre}" itemValue="#{estatus}" />
+                                        </p:selectOneMenu>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column style="width:32px">
+                                <p:rowEditor />
+                            </p:column>
+                        </p:dataTable>
+                    </p:outputPanel>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+    </ui:define>
+</ui:composition>

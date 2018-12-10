@@ -1,0 +1,225 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-users w3-margin-right w3-margin-left" /> Reporte Final
+        </h2>        
+    </ui:define>
+
+    <ui:define name="head">
+        <style>
+            .ui-paginator {
+                text-align: left !important;
+            }
+            .ui-datepicker-calendar {
+                display: none !important;
+                color: #123 !important;
+            }
+            .ui-datepicker-month{
+                color: #4f545b !important;
+            }
+            .ui-datepicker-year{
+                color: #4f545b !important;
+            }
+            .ui-datepicker .ui-datepicker-header{
+                background: transparent;
+            }
+        </style>
+        <script type="text/javascript">
+            function regenererCal() {
+                year = $("#formData\\:mes .ui-datepicker-year").val();
+                month = $("#formData\\:mes .ui-datepicker-month").val();
+                $('#formData\\:mes_input').val(year + '-' + ('0' + (++month)).slice(-2) + '-01');
+
+                lastDay = new Date(year, month + 1, 0); // To get last day of month, see http://stackoverflow.com/a/13572682/1431979
+
+                // Check what is posted to your server
+                console.log("[voirCalendrier.js]regenererCal mes_input = " + $('#formData\\:mes_input').val());
+            }
+        </script>       
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:outputPanel class="w3-card-8 w3-round-medium" id="pnlBusqueda">
+                <p:panel>
+                    <f:facet name="header">
+                        Búsqueda
+                    </f:facet>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-2">
+                            <p:outputLabel for="mes" value="Mes:" />
+                            <p:calendar id="mes" value="#{reporteFinalBean.fecha}" navigator="true" pattern="yyyy-MM-dd" mode="inline" effect="slideDown"  />
+                        </div>
+                        <div class="ui-g-12 ui-lg-6 ui-xl-3">
+                            <div>
+                                <p:outputLabel value="" for="" />
+                            </div>
+                            <p:commandButton value="Buscar" onclick="regenererCal();" action="#{reporteFinalBean.obtenerChips()}" icon="fa fa-search" disabled="false" style="width: 35%; left: 10%;" update="@([id$=msgs]) @([id$=dtReporte]) @([id$=pnlResultado]) @([id$=pnlBusqueda])" process="@([id$=pnlBusqueda])"/>                         
+                        </div>
+                    </div>
+                </p:panel>
+            </p:outputPanel>
+            <p:outputPanel class="w3-card-8 w3-margin-top w3-round-medium" id="pnlResultado">
+                <p:panel styleClass="w3-container blockable w3-padding-0" >
+                    <f:facet name="header">
+                        Resultado:
+                    </f:facet>
+                    <p:dataTable id="dtReporte" value="#{reporteFinalBean.registros}" var="reporteF" 
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {Exporters}"
+                                 rowsPerPageTemplate="50, 100, 500" paginator="true" rows="10" style="margin-top:0; margin-bottom:20px" emptyMessage="No se ha seleccionado el tipo de parámetro."
+                                 resizableColumns="true" scrollable="true" scrollWidth="250%">
+
+<!--                        <f:facet name="header">
+                            <p:commandButton id="toggler" type="button" value="Columnas" style="float:left" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="dtReporte" trigger="toggler">
+                                <p:ajax event="toggle" listener="#{reporteFinalBean.onToggle}"  />
+                            </p:columnToggler>
+                        </f:facet>-->
+
+                        <f:facet name="{Exporters}">
+                            <h:commandLink>
+                                <p:graphicImage name="images/excel.png" width="34" title="Exportar a excel"/>
+                                <p:dataExporter type="xls" target="dtReporte" fileName="Chips" />
+                            </h:commandLink>
+                        </f:facet>
+                        
+                        <p:columnGroup type="header">
+                            <p:row>
+                                <p:column style="border: 3px solid #ca195a" colspan="11" headerText="Seguimiento" />
+                                <p:column style="border: 3px solid #008749" colspan="2" headerText="Comisiones" />
+                                <p:column style="border: 3px solid #fbda03" colspan="3" headerText="Dispersión de saldos" />
+                                <p:column style="border: 3px solid #720e9e" colspan="7" headerText="Venta SIv" />
+                                <p:column style="border: 3px solid #003eff" colspan="3" headerText="Consolidado" />
+                            </p:row>
+                            <p:row>
+                                <p:column headerText="ICCID" />
+                                <p:column headerText="DN" />
+                                <p:column headerText="DN Temporal" />
+                                <p:column headerText="NIP" />
+                                <p:column headerText="Supervisor" />
+                                <p:column headerText="Vendedor" />
+                                <p:column headerText="Mayorista" />
+                                <p:column headerText="Fecha Portabilidad" />
+                                <p:column headerText="Fecha Activación" />
+                                <p:column headerText="Fecha Baja" />
+                                <p:column headerText="Carrusel/Tecnología" />
+                                <p:column headerText="Comisión Portabilidad" />
+                                <p:column headerText="Comisión Residual" />
+                                <p:column headerText="Fecha Dispersión" />
+                                <p:column headerText="Folio Recarga" />
+                                <p:column headerText="Monto Recarga" />
+                                <p:column headerText="Saldo Siv" />
+                                <p:column headerText="Cantidad Siv" />
+                                <p:column headerText="Total Siv" />
+                                <p:column headerText="Importe Siv" />
+                                <p:column headerText="Importe Siv IVA" />
+                                <p:column headerText="Factura" />
+                                <p:column headerText="Cliente" />
+                                <p:column headerText="Total" />
+                                <p:column headerText="No. Credito" />
+                                <p:column headerText="Llave" />                                
+                            </p:row>
+                        </p:columnGroup>
+
+                        <p:column headerText="ICCID" style="width: 15%" visible="#{reporteFinalBean.list[0]}">
+                            <h:outputText value="#{reporteF.serie}" />
+                        </p:column>
+                        <p:column headerText="DN" style="width: 8%" visible="#{reporteFinalBean.list[1]}">
+                            <h:outputText value="#{reporteF.dn}" />
+                        </p:column>
+                        <p:column headerText="DN Temporal" style="width: 8%" visible="#{reporteFinalBean.list[2]}">
+                            <h:outputText value="#{reporteF.dn_temporal}" />
+                        </p:column>  
+                        <p:column headerText="NIP" style="width: 8%" visible="#{reporteFinalBean.list[3]}">
+                            <h:outputText value="#{reporteF.nip}" />
+                        </p:column>  
+                        <p:column headerText="Supervisor" style="width: 20%" visible="#{reporteFinalBean.list[4]}">
+                            <h:outputText value="#{reporteF.supervisor}" />
+                        </p:column>
+                        <p:column headerText="Vendedor" style="width: 20%" visible="#{reporteFinalBean.list[5]}">
+                            <h:outputText value="#{reporteF.vendedor}" />
+                        </p:column>   
+                        <p:column headerText="Mayorista" style="width: 20%" visible="#{reporteFinalBean.list[6]}">
+                            <h:outputText value="#{reporteF.mayorista}" />
+                        </p:column>   
+                        <p:column headerText="Fecha Portabilidad" style="width: 12%" sortBy="#{reporteF.fecha_portabilidad}" visible="#{reporteFinalBean.list[7]}">
+                            <h:outputText value="#{reporteF.fecha_portabilidad}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Fecha Activación" style="width: 12%" sortBy="#{reporteF.fecha_activacion}" visible="#{reporteFinalBean.list[8]}">
+                            <h:outputText value="#{reporteF.fecha_activacion}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Fecha Baja" style="width: 12%" sortBy="#{reporteF.fecha_baja}" visible="#{reporteFinalBean.list[9]}">
+                            <h:outputText value="#{reporteF.fecha_baja}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Carrusel/Tecnología" style="width: 15%" visible="#{reporteFinalBean.list[10]}">
+                            <h:outputText value="#{reporteF.carrusel}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[11]}">
+                            <h:outputText value="#{reporteF.comision}" />
+                        </p:column>
+                        <p:column headerText="Comisión Residual" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[12]}">
+                            <h:outputText value="#{reporteF.comision_residual}" />                            
+                        </p:column>                        
+
+                        <p:column headerText="Fecha Dispersión" style="width: 12%" visible="#{reporteFinalBean.list[13]}">
+                            <h:outputText value="#{reporteF.fecha_dispersion}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Folio Recarga" style="width: 10%" visible="#{reporteFinalBean.list[14]}">
+                            <h:outputText value="#{reporteF.folio}" />
+                        </p:column>
+                        <p:column headerText="Monto Recarga" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[15]}">
+                            <h:outputText value="#{reporteF.monto}" />
+                        </p:column>
+                        <p:column headerText="Saldo Siv" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[16]}">
+                            <h:outputText value="#{reporteF.saldo_siv}" />
+                        </p:column>
+                        <p:column headerText="Cantidad Siv" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[17]}">
+                            <h:outputText value="#{reporteF.cantidad_siv}" />
+                        </p:column>
+                        <p:column headerText="Total Siv" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[18]}">
+                            <h:outputText value="#{reporteF.total_siv}" />
+                        </p:column>
+                        <p:column headerText="Importe Siv" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[19]}">
+                            <h:outputText value="#{reporteF.importe_siv}" />
+                        </p:column>
+                        <p:column headerText="Importe IVA Siv" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[20]}">
+                            <h:outputText value="#{reporteF.importe_iva_siv}" />
+                        </p:column>                      
+                        <p:column headerText="Factura" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[21]}">
+                            <h:outputText value="#{reporteF.factura}" />
+                        </p:column>  
+                        <p:column headerText="Cliente" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[22]}">
+                            <h:outputText value="#{reporteF.cliente}" />
+                        </p:column>
+                        <p:column headerText="Total" style="width: 8%; text-align: right;" visible="#{reporteFinalBean.list[23]}">
+                            <h:outputText value="#{reporteF.total}" />
+                        </p:column>
+                        <p:column headerText="No. Credito" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[24]}">
+                            <h:outputText value="#{reporteF.nCredito}" />
+                        </p:column>
+                        <p:column headerText="Llave" style="width: 10%; text-align: right;" visible="#{reporteFinalBean.list[25]}">
+                            <h:outputText value="#{reporteF.llave}" />
+                        </p:column>
+                        
+                    </p:dataTable>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+    </ui:define>
+</ui:composition>
+

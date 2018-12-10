@@ -1,0 +1,61 @@
+server:
+    contextPath: /SimAdmin-Web
+    port: 8082
+    error:
+        whitelabel:
+            enabled: false
+spring:
+    profiles:
+        active: dev
+    thymeleaf:
+        cache: false
+    jmx:
+        default-domain: spring-boot-template-jsf
+    http:
+        multipart:
+            max-file-size: 200MB
+            max-request-size: 200MB
+mx:
+    sharkit:
+        aplication:
+            primefacesTheme:
+                mytheme
+jsf:
+    PROJECT_STAGE: Development
+    FACELETS_LIBRARIES: /tags/tags.taglib.xml
+    primefaces:
+        theme: ${userSettings.currentTheme}
+joinfaces:
+    version: @project.parent.version@
+spring-boot:
+    version: @project.parent.parent.version@
+tomcat:
+    version: @tomcat.version@
+    ajp:
+        enabled: true
+        port: 9090
+        remoteauthentication: false
+jetty:
+    version: @jetty.version@
+undertow:
+    version: @undertow.version@
+cdi:
+    version: @cdi.version@
+mojarra:
+    version: @javax.faces.version@
+myfaces:
+    version: @myfaces.version@
+omnifaces:
+    version: @omnifaces.version@
+angularfaces:
+    version: @angularfaces.version@
+primefaces:
+    version: @primefaces.version@
+primefaces-extensions:
+    version: @primefaces-extensions.version@
+bootsfaces:
+    version: @bootsfaces.version@
+butterfaces:
+    version: @butterfaces.version@
+richfaces:
+    version: @richfaces.version@

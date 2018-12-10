@@ -1,0 +1,123 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-share-alt w3-margin-right w3-margin-left" /> Workflow
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+
+            <p:outputPanel rendered="#{workflowCtrl.showPanelDatos}" styleClass="blockable" >
+                <p:panel header="Catálogo de workflows">
+                    <p:menubar>
+                        <p:menuitem value="Nuevo" icon="fa fa-plus" process="@this" action="#{workflowCtrl.cleanObject()}" update="@form" >
+                            <f:setPropertyActionListener target="#{workflowCtrl.tipoActualizacion}" value="create" />
+                            <f:setPropertyActionListener target="#{workflowCtrl.showPanelDatos}" value="false" />
+                        </p:menuitem>
+                    </p:menubar>
+                    <p:dataTable var="registro" value="#{workflowCtrl.currents}" rows="25"
+                                 id="dtDatos" paginator="true" rowKey="#{registro.id}" emptyMessage="No existe información."
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="25,50" paginatorPosition="bottom" paginatorAlwaysVisible="false"
+                                 widgetVar="wvDatos" rowIndexVar="rowIndex" resizableColumns="true" scrollable="true">
+
+                        <p:column headerText="Id" style="width: 10%">
+                            <h:outputText value="#{registro.id}" />
+                        </p:column>
+
+                        <p:column headerText="Clave" style="width: 30%">
+                            <h:outputText value="#{registro.clave}" />
+                        </p:column>
+
+                        <p:column headerText="Descripción"  style="width: 50%">
+                            <h:outputText value="#{registro.descripcion}" />
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" update="@([id$=formData]) @([id$=formNewRegistro]) @([id$=msgs])" title="Actualizar registro" >
+                                <span class="fa fa-edit"></span> 
+                                <f:setPropertyActionListener target="#{workflowCtrl.current}" value="#{registro}" />
+                                <f:setPropertyActionListener target="#{workflowCtrl.showPanelDatos}" value="false" />
+                                <f:setPropertyActionListener target="#{workflowCtrl.tipoActualizacion}" value="update" />
+                            </p:commandLink> 
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" action="#{workflowCtrl.delete}" update="@([id$=formData]) @([id$=msgs])" title="Eliminar registro" >
+                                <span class="fa fa-trash"></span> 
+                                <f:setPropertyActionListener value="#{registro}" target="#{workflowCtrl.selectedCurrent}" />
+                                <p:confirm header="Confirmación" message="¿Está seguro de eliminar registro seleccionado?" icon="ui-icon-alert" />
+                            </p:commandLink> 
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+
+            </p:outputPanel>
+            
+            <p:outputPanel rendered="#{not workflowCtrl.showPanelDatos}" styleClass="blockable" >
+                <p:focus for="pnlActualizacion" />
+                <p:panel id="pnlActualizacion" >
+                    <f:facet name="header">
+                        <h:outputLabel value="Alta de tipo de estatus" rendered="#{workflowCtrl.tipoActualizacion eq 'create'}" />
+                        <h:outputLabel value="Modificación de tipo de estatus" rendered="#{workflowCtrl.tipoActualizacion eq 'update'}" />
+                    </f:facet>
+
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel for="claveRol" value="Id: " />
+                            </div>
+                            <p:inputText id="claveRol" value="#{workflowCtrl.current.id}" maxlength="20" required="true" 
+                                         disabled="true" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Clave" for="clave" />
+                            </div>
+                            <p:inputText id="clave" value="#{workflowCtrl.current.clave}" maxlength="50" required="true" 
+                                         onkeyup="this.value = this.value.toUpperCase();"
+                                         disabled="#{workflowCtrl.tipoActualizacion eq 'update'}" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Descripción" for="descripcion" />                                
+                            </div>
+                            <p:inputText id="descripcion" value="#{workflowCtrl.current.descripcion}" maxlength="128" required="true" 
+                                         onkeyup="this.value = this.value.toUpperCase();" />
+                        </div>
+
+                    </div>
+
+
+                    <f:facet name="footer">
+                        <p:commandButton icon="fa fa-save" value="Aceptar" process="@([id$=pnlActualizacion])" action="#{workflowCtrl.create}" 
+                                         update="@form @([id$=msgs])" rendered="#{workflowCtrl.tipoActualizacion eq 'create'}" />
+
+                        <p:commandButton icon="fa fa-save" value="Actualizar" process="@([id$=pnlActualizacion])" action="#{workflowCtrl.update}"
+                                         update="@form @([id$=msgs])" rendered="#{workflowCtrl.tipoActualizacion eq 'update'}" />
+
+                        <p:commandButton icon="fa fa-save" value="Cancelar" process="@this" update="@form @([id$=msgs])" >
+                            <f:setPropertyActionListener target="#{workflowCtrl.tipoActualizacion}" value="#{null}" />
+                            <f:setPropertyActionListener target="#{workflowCtrl.showPanelDatos}" value="true" />
+                            <p:resetInput target="pnlActualizacion" />
+                        </p:commandButton>
+
+                    </f:facet>
+                </p:panel>
+            </p:outputPanel>
+            
+        </h:form>
+    </ui:define>
+
+</ui:composition>

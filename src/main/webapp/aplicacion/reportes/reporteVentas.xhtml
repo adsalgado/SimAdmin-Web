@@ -1,0 +1,232 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <ui:define name="head">
+        <style>
+            .ui-paginator {
+                text-align: left !important;
+            }
+
+            .value {
+                font-weight: bold;
+            }
+
+            .ui-datatable {
+                margin-bottom: 25px
+            }
+
+            .ui-datatable .ui-datatable-footer {
+                text-align:left;
+            }
+
+            .ui-datalist ul {
+                padding: 0 0 0 10px;
+                margin: 5px 0;
+            }
+
+            .ui-datatable .ui-button-icon-only .ui-button-text {
+                padding: 0;
+                line-height: 1.2;
+            }
+        </style>
+    </ui:define> 
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-file-text w3-margin-right w3-margin-left" /> Reporte Ventas
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:outputPanel class="w3-card-8 w3-round-medium" id="pnlBusqueda">
+                <p:panel>
+                    <f:facet name="header">
+                        Búsqueda
+                    </f:facet>
+
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <p:outputLabel for="vendedor" value="Promotor: "/>
+                            <p:selectOneMenu id="vendedor"  style="width: 95%;" value="#{reporteVentasBean.idVendedor}"
+                                             required="true" requiredMessage="El campo 'Promotor' es requerido.">
+                                <f:selectItem itemValue="#{null}" itemLabel="[-- TODOS --]" />
+                                <f:selectItems value="#{reporteVentasBean.vendedores}" var="vendedor" itemValue="#{vendedor.id}" itemLabel="#{vendedor.nombre} #{vendedor.paterno} #{vendedor.materno}" />
+                            </p:selectOneMenu>  
+                        </div>
+                        <div class="ui-g-12 ui-lg-6 ui-xl-2">
+                            <p:outputLabel for="fechaini" value="Fecha Inicio: " />
+                            <p:calendar id="fechaini" value="#{reporteVentasBean.fechaInicio}" pattern="dd/MM/yyyy" locale="es_MX" 
+                                        required="true" requiredMessage="El campo 'Fecha Inicio' es requerido." />
+                        </div>
+                        <div class="ui-g-12 ui-lg-6 ui-xl-2">
+                            <p:outputLabel for="fechafin" value="Fecha Fin:" />
+                            <p:calendar id="fechafin" value="#{reporteVentasBean.fechaFin}" pattern="dd/MM/yyyy" locale="es_MX" 
+                                        required="true" requiredMessage="El campo 'Fecha Fin' es requerido." />
+                        </div>
+                    </div>
+                    <f:facet name="footer">
+                        <p:commandButton value="Buscar" action="#{reporteVentasBean.obtenerChips()}" icon="fa fa-search" 
+                                         update="@([id$=msgs]) @([id$=dtReporte]) @([id$=pnlResultado]) @([id$=pnlBusqueda])" 
+                                         process="@this @([id$=pnlBusqueda])"/>                        
+                    </f:facet>
+                </p:panel>
+            </p:outputPanel>
+            <p:outputPanel class="w3-card-8 w3-margin-top w3-round-medium" id="pnlResultado">
+                <p:panel styleClass="w3-container blockable w3-padding-0" >
+                    <f:facet name="header">
+                        Sims Vendidos :
+                    </f:facet>
+                    <p:dataTable id="dtReporte" value="#{reporteVentasBean.chips}" var="reporte" emptyMessage="No se encontró información para los filtros seleccionados."
+                                 selection="#{reporteVentasBean.selectedChips}" rowKey="#{reporte.id}" >
+
+                        <p:ajax event="toggleSelect" listener="#{reporteVentasBean.calculaTotales}" update="@([id$=pnlResultado])" />
+                        <p:ajax event="rowSelectCheckbox" listener="#{reporteVentasBean.calculaTotales}" update="@([id$=pnlResultado])" />
+                        <p:ajax event="rowUnselectCheckbox" listener="#{reporteVentasBean.calculaTotales}" update="@([id$=pnlResultado])" />
+
+                        <p:column selectionMode="multiple" style="width:35px;text-align:center"/>
+
+                        <p:column headerText="ICCID" >
+                            <h:outputText value="#{reporte.serie}" />
+                        </p:column>
+
+                        <p:column headerText="Estatus" >
+                            <h:outputText value="#{reporte.estatus.nombre}" />
+                        </p:column>
+
+                        <p:column headerText="Cliente" >
+                            <h:outputText value="#{reporte.nombreCliente}" />
+                        </p:column>
+
+                        <p:column headerText="Vendedor" >
+                            <h:outputText value="#{reporte.usuarioVendedor.nombre} #{reporte.usuarioVendedor.paterno} #{reporte.usuarioVendedor.materno}" />
+                        </p:column>
+
+                        <p:column headerText="Fecha de Asignación Vendedor" >
+                            <h:outputText value="#{reporte.fechaAsignacionVendedor}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Fecha de Venta" footerText="xxx" >
+                            <h:outputText value="#{reporte.fechaVenta}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:columnGroup type="footer">
+                            <p:row>
+                                <p:column colspan="6" style="text-align:right" footerText="Total Vendidos: " />
+                                <p:column colspan="1" style="text-align:right" footerText="#{reporteVentasBean.chips.size()}" >
+
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column colspan="6" style="text-align:right" footerText="Total Seleccionados: " />
+                                <p:column colspan="1" style="text-align:right" footerText="#{reporteVentasBean.selectedChips.size()}" >
+
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column colspan="6" style="text-align:right" footerText="Total Costo:" />
+                                <p:column colspan="1" style="text-align:right" footerText="#{reporteVentasBean.totalVenta}" >
+
+                                </p:column>
+                            </p:row>
+                        </p:columnGroup>
+
+                        <f:facet name="footer">
+                            
+                            <p:outputPanel style="text-align: right">
+
+                                <p:commandButton value="Cerrar chips" icon="fa fa-save" process="@this @([id$=pnlBusqueda]) @([id$=pnlResultado])"
+                                                 action="#{reporteVentasBean.cierreChips}" update="@form @([id$=msgs])"
+                                                 disabled="#{reporteVentasBean.selectedChips eq null or reporteVentasBean.selectedChips.size() le 0}" >
+                                    <p:confirm header="Confirmación" message="¿Deseas cerrar los Sims seleccionados?" icon="ui-icon-alert" />
+                                </p:commandButton>
+                            </p:outputPanel>
+                        </f:facet>
+
+                    </p:dataTable>
+                </p:panel>
+                <p:panel styleClass="w3-container blockable w3-padding-0" >
+                    <f:facet name="header">
+                        Sims Cerrados :
+                    </f:facet>
+                    <p:dataTable id="dtReporte2" value="#{reporteVentasBean.chipsCerrados}" var="reporte" emptyMessage="No se encontró información para los filtros seleccionados."
+                                 rowKey="#{reporte.id}" >
+
+                        <p:column headerText="ICCID" >
+                            <h:outputText value="#{reporte.serie}" />
+                        </p:column>
+
+                        <p:column headerText="Estatus" >
+                            <h:outputText value="#{reporte.estatus.nombre}" />
+                        </p:column>
+
+                        <p:column headerText="Cliente" >
+                            <h:outputText value="#{reporte.nombreCliente}" />
+                        </p:column>
+
+                        <p:column headerText="Vendedor" >
+                            <h:outputText value="#{reporte.usuarioVendedor.nombre} #{reporte.usuarioVendedor.paterno} #{reporte.usuarioVendedor.materno}" />
+                        </p:column>
+
+                        <p:column headerText="Fecha de Cierre" >
+                            <h:outputText value="#{reporte.fechaEstatus}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  locale="es_MX" />
+                            </h:outputText>
+                        </p:column>
+
+                        <f:facet name="footer">
+                            Total Sims Cerrados: 
+                            <h:outputText value="#{reporteVentasBean.chipsCerrados.size()}" 
+                                          rendered="#{reporteVentasBean.chipsCerrados ne null}" />
+                        </f:facet>
+                    </p:dataTable>
+                </p:panel>
+                <p:panel styleClass="w3-container blockable w3-padding-0" >
+                    <f:facet name="header">
+                        Sims Asignados :
+                    </f:facet>
+                    <p:dataTable id="dtReporte3" value="#{reporteVentasBean.chipsAsignados}" var="reporte" emptyMessage="No se encontró información para los filtros seleccionados."
+                                 rowKey="#{reporte.id}" >
+
+                        <p:column headerText="ICCID" >
+                            <h:outputText value="#{reporte.serie}" />
+                        </p:column>
+
+                        <p:column headerText="Estatus" >
+                            <h:outputText value="#{reporte.estatus.nombre}" />
+                        </p:column>
+
+                        <p:column headerText="Cliente" >
+                            <h:outputText value="#{reporte.nombreCliente}" />
+                        </p:column>
+
+                        <p:column headerText="Vendedor" >
+                            <h:outputText value="#{reporte.usuarioVendedor.nombre} #{reporte.usuarioVendedor.paterno} #{reporte.usuarioVendedor.materno}" />
+                        </p:column>
+
+                        <p:column headerText="Fecha de Cierre" >
+                            <h:outputText value="#{reporte.fechaEstatus}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+
+                        <f:facet name="footer">
+                            Total Sims Asignados: 
+                            <h:outputText value="#{reporteVentasBean.chipsAsignados.size()}" 
+                                          rendered="#{reporteVentasBean.chipsAsignados ne null}" />
+                        </f:facet>
+
+                    </p:dataTable>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,138 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="head">
+        <style>
+            .ui-paginator {
+                text-align: left !important;
+            }
+        </style>
+    </ui:define>    
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-users w3-margin-right w3-margin-left" /> Errores de Portabilidad
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:outputPanel class="w3-card-8 w3-round-medium" id="pnlBusqueda">
+                <p:panel>
+                    <f:facet name="header">
+                        Búsqueda
+                    </f:facet>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-3">
+                            <div>
+                                <p:outputLabel value="Error de la portabilidad:  " for="errorPortabilidad" />
+                            </div>
+                            <p:selectOneMenu id="errorPortabilidad" value="#{reporteErroresBean.estatusPo}" style="width:100%">
+                                <f:selectItem itemLabel="-- Seleccione un estatus --" itemValue="" />
+                                <f:selectItems value="#{reporteErroresBean.estatusPortabilidad}" var="errorPortabilidad" itemLabel="#{errorPortabilidad.nombre}" itemValue="#{errorPortabilidad.id}" />
+                            </p:selectOneMenu>
+                        </div>
+                        <div class="ui-g-12 ui-lg-6 ui-xl-2">
+                            <p:outputLabel for="fechaPortabilidad" value="Fecha de Error de Portabilidad:" />
+                            <p:calendar id="fechaPortabilidad" value="#{reporteErroresBean.fechaEstatusPortabilidad}" />
+                        </div>
+                        <div class="ui-g-12 ui-lg-6 ui-xl-2">
+                            <div>
+                                <p:outputLabel value="" for="" />
+                            </div>
+                            <p:commandButton value="Buscar" action="#{reporteErroresBean.obtenerChips()}" icon="fa fa-search" disabled="false" style="width: 35%;" update="@([id$=msgs]) @([id$=dtReporte]) @([id$=pnlResultado]) @([id$=pnlBusqueda])" process="@([id$=pnlBusqueda])"/>                         
+                        </div>
+                    </div>
+                </p:panel>
+            </p:outputPanel>
+
+            <p:outputPanel class="w3-card-8 w3-margin-top w3-round-medium" id="pnlResultado">
+                <p:panel styleClass="w3-container blockable w3-padding-0" >
+                    <f:facet name="header">
+                        Resultado:
+                    </f:facet>
+                    <p:dataTable id="dtReporte" value="#{reporteErroresBean.chips}" var="reporteE" paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {Exporters}"
+                                 rowsPerPageTemplate="50, 100, 500" paginator="true" rows="60" style="margin-top:0; margin-bottom:20px" emptyMessage="No se ha seleccionado el tipo de parámetro."
+                                 resizableColumns="true" scrollable="true" scrollWidth="230%">
+
+                        <f:facet name="{Exporters}">
+                            <h:commandLink>
+                                <p:graphicImage name="images/excel.png" width="34" title="Exportar a excel"/>
+                                <p:dataExporter type="xls" target="dtReporte" fileName="Chips" />
+                            </h:commandLink>
+                        </f:facet>
+
+                        <p:column headerText="ICCID" style="width: 12%">
+                            <h:outputText value="#{reporteE.serie}" />
+                        </p:column>
+                        <p:column headerText="Portabilidad" style="width: 20%">
+                            <h:outputText value="#{reporteE.estatusPortabilidad.nombre}" style="color:#f59d44" />
+                        </p:column>
+                        <p:column headerText="Fecha estatus portabilidad" style="width: 12%">
+                            <h:outputText value="#{reporteE.fechaEstPortabilidad}">
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Cliente" style="width: 20%">
+                            <h:outputText value="#{reporteE.nombreCliente}" />
+                        </p:column>
+                        <p:column headerText="Supervisor" style="width: 20%">
+                            <h:outputText value="#{reporteE.usuarioSupervisor.nombre} #{reporteE.usuarioSupervisor.paterno} #{reporteE.usuarioSupervisor.materno}" />
+                        </p:column>
+                        <p:column headerText="Fecha Asignación Supervisor" style="width: 12%">
+                            <h:outputText value="#{reporte.fechaAsignacionSupervisor}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Vendedor" style="width: 20%">
+                            <h:outputText value="#{reporteE.usuarioVendedor.nombre} #{reporteE.usuarioVendedor.paterno} #{reporteE.usuarioVendedor.materno}" />
+                        </p:column>
+                        <p:column headerText="Fecha de Asignación Vendedor" style="width: 12%">
+                            <h:outputText value="#{reporteE.fechaAsignacionVendedor}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="NIP" style="width: 8%">
+                            <h:outputText value="#{reporteE.nip}" />
+                        </p:column>
+                        <p:column headerText="Compañía" style="width: 8%">
+                            <h:outputText value="#{reporteE.compania.nombre}" />
+                        </p:column>
+                        <p:column headerText="DN" style="width: 8%">
+                            <h:outputText value="#{reporteE.dn}" />
+                        </p:column>
+                        <p:column headerText="DN Temporal" style="width: 8%">
+                            <h:outputText value="#{reporteE.dnTemporal}" />
+                        </p:column>   
+                        <p:column headerText="Folio" style="width: 8%">
+                            <h:outputText value="#{reporteE.folio}" />                            
+                        </p:column>
+                        <p:column headerText="Fecha de Registro" style="width: 12%">
+                            <h:outputText value="#{reporteE.fecha}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Fecha de Venta" style="width: 12%">
+                            <h:outputText value="#{reporteE.fechaVenta}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Estatus Inicial" style="width: 12%">
+                            <h:outputText value="#{reporteE.estatus.nombre}" />
+                        </p:column>
+                        <p:column headerText="Fecha estatus inicial" style="width: 12%">
+                            <h:outputText value="#{reporteE.fechaEstatus}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+    </ui:define>
+</ui:composition>

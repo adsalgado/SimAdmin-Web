@@ -1,0 +1,204 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-share-alt w3-margin-right w3-margin-left" /> Conf. Workflow
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:remoteCommand name="actualizarTabla" process="@this" action="#{workflowConfigCtrl.search()}" update="@([id$=dtDatos])" />
+
+            <p:outputPanel rendered="#{workflowConfigCtrl.showPanelDatos}" styleClass="blockable" >
+                <p:panel header="Configuración de workflows">
+                    <p:menubar>
+                        <p:menuitem value="Nuevo" icon="fa fa-plus" process="@this" action="#{workflowConfigCtrl.cleanObject()}" update="@form" >
+                            <f:setPropertyActionListener target="#{workflowConfigCtrl.tipoActualizacion}" value="create" />
+                            <f:setPropertyActionListener target="#{workflowConfigCtrl.showPanelDatos}" value="false" />
+                        </p:menuitem>
+                    </p:menubar>
+
+
+                    <p:dataTable var="registro" value="#{workflowConfigCtrl.currents}" rows="25"
+                                 id="dtDatos" paginator="true" rowKey="#{registro.id}" emptyMessage="No existe información."
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="25,50" paginatorPosition="bottom" paginatorAlwaysVisible="false"
+                                 widgetVar="wvDatos" rowIndexVar="rowIndex" resizableColumns="true" scrollable="true">
+
+                        <p:column headerText="Id" style="width: 5%">
+                            <h:outputText value="#{registro.id}" />
+                        </p:column>
+
+                        <p:column headerText="Workflow" style="width: 10%">
+                            <h:outputText value="#{registro.workflow.clave}" />
+                        </p:column>
+
+                        <p:column headerText="Estatus actual" style="width: 10%">
+                            <h:outputText value="#{registro.estatusActual.nombre}" />
+                        </p:column>
+
+                        <p:column headerText="Evento"  style="width: 15%">
+                            <h:outputText value="#{registro.evento}" />
+                        </p:column>
+
+                        <p:column headerText="Estatus siguiente" style="width: 10%">
+                            <h:outputText value="#{registro.estatusSiguiente.nombre}" />
+                        </p:column>
+
+                        <p:column headerText="Etiqueta"  style="width: 10%">
+                            <h:outputText value="#{registro.etiqueta}" />
+                        </p:column>
+
+                        <p:column headerText="Icono"  style="width: 10%">
+                            <h:outputText value="#{registro.icono}" />
+                        </p:column>
+
+                        <p:column headerText="Ord."  style="width: 5%">
+                            <h:outputText value="#{registro.orden}" />
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" update="@([id$=formData]) @([id$=formNewRegistro]) @([id$=msgs])" title="Actualizar registro" 
+                                           action="#{workflowConfigCtrl.onConfigSelected}" >
+                                <span class="fa fa-edit"></span> 
+                                <f:setPropertyActionListener target="#{workflowConfigCtrl.current}" value="#{registro}" />
+                                <f:setPropertyActionListener target="#{workflowConfigCtrl.showPanelDatos}" value="false" />
+                                <f:setPropertyActionListener target="#{workflowConfigCtrl.tipoActualizacion}" value="update" />
+                            </p:commandLink> 
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" action="#{workflowConfigCtrl.delete}" update="@([id$=formData]) @([id$=msgs])" title="Eliminar registro" >
+                                <span class="fa fa-trash"></span> 
+                                <f:setPropertyActionListener value="#{registro}" target="#{workflowConfigCtrl.selectedCurrent}" />
+                                <p:confirm header="Confirmación" message="¿Está seguro de eliminar registro seleccionado?" icon="ui-icon-alert" />
+                            </p:commandLink> 
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+
+            </p:outputPanel>
+
+            <p:outputPanel rendered="#{not workflowConfigCtrl.showPanelDatos}" styleClass="blockable" >
+                <p:focus for="pnlActualizacion" />
+                <p:panel id="pnlActualizacion" >
+                    <f:facet name="header">
+                        <h:outputLabel value="Alta de tipo de estatus" rendered="#{workflowConfigCtrl.tipoActualizacion eq 'create'}" />
+                        <h:outputLabel value="Modificación de tipo de estatus" rendered="#{workflowConfigCtrl.tipoActualizacion eq 'update'}" />
+                    </f:facet>
+
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel for="claveRol" value="Id: " />
+                            </div>
+                            <p:inputText id="claveRol" value="#{workflowConfigCtrl.current.id}" maxlength="20" required="true" 
+                                         disabled="true" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Workflow" for="workflow" />                                
+                            </div>
+                            <p:selectOneMenu id="workflow" value="#{workflowConfigCtrl.current.workflowId}" required="true">
+                                <f:selectItem itemValue="#{null}" itemLabel="[ -- SELECCIONE --]" />
+                                <f:selectItems value="#{workflowConfigCtrl.listWorkflow}" var="est" itemValue="#{est.id}" itemLabel="#{est.clave}" />
+                            </p:selectOneMenu>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Tipo estatus" for="tipoEstatus" />                                
+                            </div>
+                            <p:selectOneMenu id="tipoEstatus" value="#{workflowConfigCtrl.tipoEstatusId}" required="true">
+                                <p:ajax listener="#{workflowConfigCtrl.onTipoEstatusChange}" process="@this @([id$=tipoEstatus])" update="@([id$=pnlEstatusActual]) @([id$=pnlEstatusSiguiente])" />
+                                <f:selectItem itemValue="#{null}" itemLabel="[ -- SELECCIONE --]" />
+                                <f:selectItems value="#{workflowConfigCtrl.listTipoEstatus}" var="est" itemValue="#{est.id}" itemLabel="#{est.nombre}" />
+                            </p:selectOneMenu>
+                        </div>
+
+                        <p:outputPanel id="pnlEstatusActual" class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Estatus actual" for="estatusActual" />                                
+                            </div>
+                            <p:selectOneMenu id="estatusActual" value="#{workflowConfigCtrl.current.estatusActualId}" required="true">
+                                <f:selectItem itemValue="#{null}" itemLabel="[ -- SELECCIONE --]" />
+                                <f:selectItems value="#{workflowConfigCtrl.listEstatus}" var="est" itemValue="#{est.id}" itemLabel="#{est.nombre}" />
+                            </p:selectOneMenu>
+                        </p:outputPanel>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Evento" for="evento" />
+                            </div>
+                            <p:inputText id="evento" value="#{workflowConfigCtrl.current.evento}" maxlength="128" required="true" />
+                        </div>
+
+                        <p:outputPanel id="pnlEstatusSiguiente" class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Estatus siguiente" for="estatusSiguiente" />                                
+                            </div>
+                            <p:selectOneMenu id="estatusSiguiente" value="#{workflowConfigCtrl.current.estatusSiguienteId}" required="true">
+                                <f:selectItem itemValue="#{null}" itemLabel="[ -- SELECCIONE --]" />
+                                <f:selectItems value="#{workflowConfigCtrl.listEstatus}" var="est" itemValue="#{est.id}" itemLabel="#{est.nombre}" />
+                            </p:selectOneMenu>
+                        </p:outputPanel>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Etiqueta" for="etiqueta" />                                
+                            </div>
+                            <p:inputText id="etiqueta" value="#{workflowConfigCtrl.current.etiqueta}" maxlength="128" required="true" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Icono" for="icono" />                                
+                            </div>
+                            <p:inputText id="icono" value="#{workflowConfigCtrl.current.icono}" maxlength="128" required="true" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Orden" for="orden" />                                
+                            </div>
+                            <p:inputText id="orden" value="#{workflowConfigCtrl.current.orden}" maxlength="128" required="true" >
+                                <p:keyFilter mask="pint" />
+                            </p:inputText>
+                        </div>
+
+                    </div>
+
+
+                    <f:facet name="footer">
+                        <p:commandButton icon="fa fa-save" value="Aceptar" process="@([id$=pnlActualizacion])" action="#{workflowConfigCtrl.create}" 
+                                         update="@form @([id$=msgs])" rendered="#{workflowConfigCtrl.tipoActualizacion eq 'create'}"
+                                         oncomplete="actualizarTabla();" />
+
+                        <p:commandButton icon="fa fa-save" value="Actualizar" process="@([id$=pnlActualizacion])" action="#{workflowConfigCtrl.update}"
+                                         update="@form @([id$=msgs])" rendered="#{workflowConfigCtrl.tipoActualizacion eq 'update'}" 
+                                         oncomplete="actualizarTabla();" />
+
+                        <p:commandButton icon="fa fa-save" value="Cancelar" process="@this" update="@form @([id$=msgs])" >
+                            <f:setPropertyActionListener target="#{workflowConfigCtrl.tipoActualizacion}" value="#{null}" />
+                            <f:setPropertyActionListener target="#{workflowConfigCtrl.showPanelDatos}" value="true" />
+                            <p:resetInput target="pnlActualizacion" />
+                        </p:commandButton>
+
+                    </f:facet>
+                </p:panel>
+            </p:outputPanel>
+
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

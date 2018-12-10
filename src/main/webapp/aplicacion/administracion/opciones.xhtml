@@ -1,0 +1,157 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-home w3-margin-right w3-margin-left" /> Opciones
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+
+            <p:outputPanel rendered="#{confOpcionesBean.showPnlConsulta}" styleClass="blockable" >
+                <p:panel header="Configuración de Menú">
+                    <p:menubar>
+                        <p:menuitem value="Nuevo" icon="fa fa-plus" process="@this" action="#{confOpcionesBean.onCreateOpcion()}" update="@form" />
+                    </p:menubar>
+                    <p:dataTable var="registro" value="#{confOpcionesBean.currents}" rows="25"
+                                 id="dtDatos" paginator="true" rowKey="#{registro.id}" emptyMessage="No existe información."
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="25,50" paginatorPosition="bottom" paginatorAlwaysVisible="false"
+                                 widgetVar="wvDatos" rowIndexVar="rowIndex" resizableColumns="true" scrollable="true">
+
+                        <p:column headerText="Orden" style="width:40px; text-align: center;" >
+                            <h:outputText value="#{registro.orden}" />
+                        </p:column>
+
+                        <p:column headerText="Menú" style="width:115px; text-align: center;" filterBy="#{registro.opcion.nombre}" 
+                                  filterMatchMode="contains" filterStyle="width: 90%;">
+                            <h:outputText value="#{registro.opcion.nombre}" rendered="#{registro.opcionId ne null}" ></h:outputText>
+                        </p:column>
+
+                        <p:column headerText="Ruta" style="width:225px;" sortBy="#{registro.url}">
+                            <h:outputText value="#{registro.url}" />
+                        </p:column>
+
+                        <p:column headerText="Nombre" style="width:115px; text-align: center;" sortBy="#{registro.nombre}">
+                            <h:outputText value="#{registro.nombre}" />
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <i class="#{registro.imagen}" />
+                        </p:column>
+
+                        <p:column headerText="Imagen" style="width:115px; text-align: center;" sortBy="#{registro.imagen}">
+                            <h:outputText value="#{registro.imagen}" />
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" update="@([id$=formData]) @([id$=formNewRegistro]) @([id$=msgs])" title="Actualizar registro" 
+                                           action="#{confOpcionesBean.onEditUser}" class="w3-text-theme-dark" ajax="false" >
+                                <span class="fa fa-edit"></span> 
+                                <f:setPropertyActionListener value="#{registro}" target="#{confOpcionesBean.current}" />
+                                <f:setPropertyActionListener value="update" target="#{confOpcionesBean.tipoActualizacion}" />
+                            </p:commandLink> 
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" action="#{confOpcionesBean.delete}" update="@([id$=formData]) @([id$=msgs])" title="Eliminar registro" >
+                                <span class="fa fa-trash"></span> 
+                                <f:setPropertyActionListener value="#{registro}" target="#{confOpcionesBean.selectedCurrent}" />
+                                <p:confirm header="Confirmación" message="¿Está seguro de eliminar la opción del menú?" icon="ui-icon-alert" />
+                            </p:commandLink> 
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+
+            </p:outputPanel>
+
+            <p:outputPanel rendered="#{confOpcionesBean.showPnlModificacion}" styleClass="blockable" >
+                <p:focus for="pnlActualizacion" />
+                <p:panel id="pnlActualizacion" >
+                    <f:facet name="header">
+                        <h:outputLabel value="Alta de Opcion" rendered="#{confOpcionesBean.tipoActualizacion eq 'create'}" />
+                        <h:outputLabel value="Modificación de Opcion" rendered="#{confOpcionesBean.tipoActualizacion eq 'update'}" />
+                    </f:facet>
+
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Ruta:" for="rta" />
+                            </div>
+                            <p:inputText id="rta" value="#{confOpcionesBean.current.url}" maxlength="256" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Nombre:" for="nom" />
+                            </div>
+                            <p:inputText id="nom" value="#{confOpcionesBean.current.nombre}" maxlength="128" required="true" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Icono:" for="im" />
+                            </div>
+                            <p:inputText id="im" value="#{confOpcionesBean.current.imagen}" maxlength="128" required="true" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Menú Padre:" for="menuo" />
+                            </div>
+                            <p:selectOneMenu id="menuo" value="#{confOpcionesBean.current.opcionId}" >
+                                <f:selectItem itemValue="#{null}" itemLabel=" - " />
+                                <f:selectItems value="#{confOpcionesBean.listaMenu}" var="lstamen" itemValue="#{lstamen.id}" itemLabel="#{lstamen.nombre}" />
+                            </p:selectOneMenu>                            
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Orden:" for="ord" />
+                            </div>
+                            <p:inputText id="ord" value="#{confOpcionesBean.current.orden}" maxlength="3" required="true" >
+                                <p:keyFilter mask="pint" />
+                            </p:inputText>
+                        </div>
+
+                        <p:outputPanel class="ui-g-12 ui-lg-6 ui-xl-4" rendered="#{confOpcionesBean.tipoActualizacion eq 'create'}">
+                            <div>
+                                <p:outputLabel value="Perfil:" for="pe" />
+                            </div>
+                            <p:selectManyMenu  id="pe" value="#{confOpcionesBean.selectedPerfiles}" required="true" 
+                                               filter="true" filterMatchMode="contains" showCheckbox="true">
+                                <f:selectItems value="#{confOpcionesBean.listaPerfiles}" var="lr" itemValue="#{lr.claveRol}" itemLabel="#{lr.claveRol}" />
+                            </p:selectManyMenu>                            
+                        </p:outputPanel>
+
+                    </div>
+
+
+                    <f:facet name="footer">
+                        <p:commandButton icon="fa fa-save" value="Aceptar" process="@(id$=pnlActualizacion)" action="#{confOpcionesBean.create()}" 
+                                         update="@form @([id$=msgs])" rendered="#{confOpcionesBean.tipoActualizacion eq 'create'}" />
+
+                        <p:commandButton icon="fa fa-save" value="Actualizar" process="@(id$=pnlActualizacion)" action="#{confOpcionesBean.update()}"
+                                         update="@form @([id$=msgs])" rendered="#{confOpcionesBean.tipoActualizacion eq 'update'}" />
+
+                        <p:commandButton icon="fa fa-save" value="Cancelar" process="@this" action="#{confOpcionesBean.showPanelConsulta()}" 
+                                         update="@form @([id$=msgs])" >
+                            <f:setPropertyActionListener target="#{confOpcionesBean.tipoActualizacion}" value="#{null}" />
+                            <p:resetInput target="pnlActualizacion" />
+                        </p:commandButton>
+
+                    </f:facet>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

@@ -1,0 +1,272 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-users w3-margin-right w3-margin-left" /> Usuarios
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:outputPanel id="pnlUsuarios" rendered="#{confUsuariosBean.showPnlConsulta}" styleClass="blockable" >
+                <p:panel header="Catálogo de usuarios">
+                    <p:menubar>
+                        <p:menuitem value="Nuevo" icon="fa fa-plus" process="@this" action="#{confUsuariosBean.onCreateUser}" update="@form" />
+                    </p:menubar>
+                    <p:dataTable var="registro" value="#{confUsuariosBean.currents}" rows="25"
+                                 id="dtDatos" paginator="true" rowKey="#{registro.id}" emptyMessage="No existe información."
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="25,50" paginatorPosition="bottom" paginatorAlwaysVisible="false"
+                                 widgetVar="wvDatos" rowIndexVar="rowIndex" resizableColumns="true" scrollable="true">
+
+                        <f:facet name="header">
+                            <p:outputPanel>
+                                <h:outputText value="Buscar:" />
+                                <p:inputText id="globalFilter" onkeyup="PF('wvDatos').filter()" style="width:200px;" placeholder=""/>
+                            </p:outputPanel>
+                        </f:facet>
+
+                        <p:column headerText="Username" filterBy="#{registro.userName}" filterStyle="width:100%">
+                            <h:outputText value="#{registro.userName}" />
+                        </p:column>
+
+                        <p:column headerText="Nombre" filterBy="#{registro.nombre} #{registro.paterno} #{registro.materno}" filterStyle="width:100%">
+                            <h:outputText value="#{registro.nombre} #{registro.paterno} #{registro.materno}" />
+                        </p:column>
+
+                        <p:column headerText="Email" filterBy="#{registro.email}" filterStyle="width:100%">
+                            <h:outputText value="#{registro.email}" />
+                        </p:column>
+
+                        <p:column headerText="Estado" style="width:125px; text-align: center;" priority="2">
+                            <h:outputText value="ACTIVO" rendered="#{registro.activo eq 1}" />
+                            <h:outputText value="INACTIVO" rendered="#{registro.activo eq 0}" />
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" update="@([id$=formData]) @([id$=formNewRegistro]) @([id$=msgs])" title="Actualizar registro" 
+                                           action="#{confUsuariosBean.onEditUser}" class="w3-text-theme-dark" >
+                                <span class="fa fa-edit"></span> 
+                                <f:setPropertyActionListener value="#{registro}" target="#{confUsuariosBean.current}" />
+                                <f:setPropertyActionListener value="update" target="#{confUsuariosBean.tipoActualizacion}" />
+                            </p:commandLink> 
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" action="#{confUsuariosBean.delete}" update="@([id$=formData]) @([id$=msgs])" title="Eliminar registro" >
+                                <span class="fa fa-trash"></span> 
+                                <f:setPropertyActionListener value="#{registro}" target="#{confUsuariosBean.selectedCurrent}" />
+
+                            </p:commandLink> 
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+
+            </p:outputPanel>
+
+            <p:outputPanel rendered="#{confUsuariosBean.showPnlModificacion}" styleClass="blockable" >
+                <p:focus for="pnlActualizacion" />
+                <p:panel id="pnlActualizacion" >
+                    <f:facet name="header">
+                        <h:outputLabel value="Alta de usuario" rendered="#{confUsuariosBean.tipoActualizacion eq 'create'}" />
+                        <h:outputLabel value="Modificación de usuario" rendered="#{confUsuariosBean.tipoActualizacion eq 'update'}" />
+                    </f:facet>
+
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel for="userName" value="Username: " />
+                            </div>
+                            <p:inputText id="userName" value="#{confUsuariosBean.current.userName}" maxlength="20" required="true" 
+                                         disabled="#{confUsuariosBean.tipoActualizacion eq 'update'}" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Nombre:" for="nombre" />                                
+                            </div>
+                            <p:inputText id="nombre" value="#{confUsuariosBean.current.nombre}" maxlength="30" required="true" 
+                                         onkeyup="this.value = this.value.toUpperCase();" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Ap. paterno:" for="paterno" />
+                            </div>
+                            <p:inputText id="paterno" value="#{confUsuariosBean.current.paterno}" maxlength="30" required="true" 
+                                         onkeyup="this.value = this.value.toUpperCase();" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Ap. materno:" for="materno" />
+                            </div>
+                            <p:inputText id="materno" value="#{confUsuariosBean.current.materno}" maxlength="30" 
+                                         onkeyup="this.value = this.value.toUpperCase();" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Email:" for="email" />
+                            </div>
+                            <p:inputText id="email" value="#{confUsuariosBean.current.email}" maxlength="40" required="true" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Estado:" for="estado" />
+                            </div>
+                            <p:selectOneMenu id="estado" value="#{confUsuariosBean.current.activo}" required="true">
+                                <f:selectItem itemValue="#{null}" itemLabel="[ -- SELECCIONE --]" />
+                                <f:selectItem itemValue="#{1}" itemLabel="ACTIVO" />
+                                <f:selectItem itemValue="#{0}" itemLabel="INACTIVO" />
+                            </p:selectOneMenu>
+
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+
+                            <div>
+                                <p:outputLabel value="Empresa " for="empresa"  />
+                            </div>
+                            <p:selectOneMenu id="empresa" value="#{confUsuariosBean.current.empresaId}"  >
+                                <p:ajax process="@this @([id$=empresa])" listener="#{confUsuariosBean.onEmpresaChange()}" 
+                                        update="@([id$=empresa]) @([id$=sucursal])" />
+                                <f:selectItem itemLabel="[ -- SELECCIONE --]" itemValue="#{null}" />
+                                <f:selectItems value="#{confUsuariosBean.empresas}" var="emp" itemValue="#{emp.id}" itemLabel="#{emp.nombre}" />
+                            </p:selectOneMenu>
+
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+
+                            <div>
+                                <p:outputLabel value="Sucursal " for="sucursal"  />
+                            </div>
+                            <p:selectOneMenu id="sucursal" value="#{confUsuariosBean.current.sucursalId}"  >
+                                <f:selectItem itemLabel="[ -- SELECCIONE --]" itemValue="#{null}" />
+                                <f:selectItems value="#{confUsuariosBean.sucursales}" var="suc" itemValue="#{suc.id}" itemLabel="#{suc.nombre}" />
+                            </p:selectOneMenu>
+
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+
+                            <div>
+                                <p:outputLabel value="Rol "  />
+                            </div>
+                            <p:selectOneMenu id="rolID" value="#{confUsuariosBean.roleId}" required="true" >
+                                <f:selectItem itemLabel="[ -- SELECCIONE --]" itemValue="" />
+                                <f:selectItems value="#{confUsuariosBean.roles}" var="lstarol" itemValue="#{lstarol.id}" itemLabel="#{lstarol.claveRol}" />
+                                <p:ajax update="@([id$=divOptions]) @([id$=divUser]) @([id$=divDirec])  @([id$=divEstado]) @([id$=divCiudades])" listener="#{confUsuariosBean.showOptionsRole}" process ="@this @([id$=rolID])" />
+                            </p:selectOneMenu>
+
+                        </div>
+                    </div>
+                    <p:outputPanel id="divOptions" >
+
+                        <p:outputPanel id="divUser"  class="ui-g ui-fluid"  rendered="#{confUsuariosBean.showPnlUser}">
+                            <div ><div class="ui-g-12 ui-lg-6 ui-xl-4" >
+                                    <div>
+                                        <p:outputLabel value="Jefe"  />
+                                    </div>
+                                    <p:selectOneMenu id="userParentID" value="#{confUsuariosBean.current.usuarioPadreId}"  >
+                                        <f:selectItem itemLabel="[ -- SELECCIONE --]" itemValue="" />
+                                        <f:selectItems value="#{confUsuariosBean.users}" var="lstauser" itemValue="#{lstauser.id}" itemLabel="#{lstauser.userName}" />
+                                    </p:selectOneMenu>
+                                </div>
+                            </div>
+                        </p:outputPanel>
+                        <p:outputPanel id="divDirec"  class="ui-g ui-fluid" rendered="#{confUsuariosBean.showPnlDireccion}">
+                            <div class="ui-g-12 ui-lg-6 ui-xl-4" >
+
+                                <div>
+                                    <p:outputLabel value="Pais"  />
+                                </div>
+                                <p:selectOneMenu id="paisID" value="#{confUsuariosBean.current.paisId}"  >
+                                    <f:selectItem itemLabel="[ -- SELECCIONE --]" itemValue="" />
+                                    <f:selectItems value="#{confUsuariosBean.paises}" var="lstapais" itemValue="#{lstapais.id}" itemLabel="#{lstapais.nombre}" />
+                                    <p:ajax update="@([id$=divEstado])" listener="#{confUsuariosBean.getZone}" process ="@this @([id$=paisID])" />
+                                </p:selectOneMenu>
+
+                            </div>
+                            <div class="ui-g-12 ui-lg-6 ui-xl-4" >
+                                <p:outputPanel  id="divEstado"  class="ui-g ui-fluid" >
+
+                                    <div>
+                                        <p:outputLabel value="Estado"  />
+                                    </div>
+                                    <p:selectOneMenu id="estadoID" value="#{confUsuariosBean.current.zonaId}" >
+                                        <f:selectItem itemLabel="[ -- SELECCIONE --]" itemValue="" />
+                                        <f:selectItems value="#{confUsuariosBean.cPais.zonaList}" var="lstazona" itemValue="#{lstazona.id}" itemLabel="#{lstazona.nombre}" />
+                                        <p:ajax update="@([id$=divCiudades])" listener="#{confUsuariosBean.getCity}" process ="@this @([id$=estadoID])" />
+                                    </p:selectOneMenu>
+
+                                </p:outputPanel>
+                            </div>
+
+                            <div class="ui-g-12 ui-lg-6 ui-xl-4" >
+                                <p:outputPanel  id="divCiudades" class="ui-g ui-fluid" > 
+                                    <div>
+                                        <p:outputLabel value="Ciudad"  />
+                                    </div>
+                                    <p:selectOneMenu id="ciudadID" value="#{confUsuariosBean.current.cuidadId}"  >
+                                        <f:selectItem itemLabel="[ -- SELECCIONE --]" itemValue="" />
+                                        <f:selectItems value="#{confUsuariosBean.ciudades}" var="lstciudad" itemValue="#{lstciudad.id}" itemLabel="#{lstciudad.nombre}" />
+
+                                    </p:selectOneMenu>
+
+                                </p:outputPanel>
+                            </div>
+                        </p:outputPanel>
+                    </p:outputPanel>
+
+                    <p:outputPanel rendered="#{confUsuariosBean.tipoActualizacion eq 'create'}" class="ui-g ui-fluid" >
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Password:" for="password" />
+                            </div>
+                            <p:password id="password" value="#{confUsuariosBean.current.password}" maxlength="20" required="true"
+                                        match="confirmPassword" validatorMessage="Las contraseñas ingresadas no coinciden."
+                                        requiredMessage="El campo 'Password' es requerido" feedback="true"/>
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Confirmar Password:" for="confirmPassword" />
+                            </div>
+                            <p:password id="confirmPassword" value="#{confUsuariosBean.confirmPassword}" maxlength="20" required="true" 
+                                        requiredMessage="El campo 'Confirmar Password' es requerido" autocomplete="false" />
+                        </div>
+                    </p:outputPanel>
+
+                    <f:facet name="footer">
+                        <p:commandButton icon="fa fa-save" value="Aceptar" process="@form" action="#{confUsuariosBean.create()}" 
+                                         update="@form @([id$=msgs])" rendered="#{confUsuariosBean.tipoActualizacion eq 'create'}" oncomplete="actualizaTabla();" />
+
+                        <p:commandButton icon="fa fa-save" value="Actualizar" process="@form" action="#{confUsuariosBean.update()}" 
+                                         update="@form @([id$=msgs])" rendered="#{confUsuariosBean.tipoActualizacion eq 'update'}" oncomplete="actualizaTabla();" />
+                        
+                        <p:commandButton icon="fa fa-save" value="Cancelar" process="@this" action="#{confUsuariosBean.showPanelConsulta()}" 
+                                         update="@form @([id$=msgs])" >
+                            <f:setPropertyActionListener target="#{confUsuariosBean.tipoActualizacion}" value="#{null}" />
+                            <p:resetInput target="pnlActualizacion" />
+                        </p:commandButton>
+
+                    </f:facet>
+                </p:panel>
+            </p:outputPanel>
+
+            <p:remoteCommand name="actualizaTabla" process="@this" action="#{confUsuariosBean.search()}" update="@form" />
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

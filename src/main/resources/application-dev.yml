@@ -1,0 +1,40 @@
+server:
+    contextPath: /SimAdmin-Web
+    port: 8082
+    error:
+        whitelabel:
+            enabled: false
+spring:
+    profiles: dev
+    datasource:
+        url: jdbc:postgresql://localhost:5432/portabilidad
+        username: asalgado
+        password: asalgado
+        validationQuery: SELECT 1
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+            connection-timeout: 60000
+            maximum-pool-size: 20
+    jpa:
+        hibernate:
+            ddl-auto: update
+            naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        properties:
+            hibernate:
+                current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+                jdbc: 
+                    time_zone: America/Mexico_City
+        show-sql: true
+    thymeleaf:
+        cache: false
+mx:
+    sharkit:
+        aplication:
+            primefacesTheme:
+                mytheme
+jsf:
+    PROJECT_STAGE: Development
+    FACELETS_LIBRARIES: /tags/tags.taglib.xml
+    primefaces:
+        theme: ${userSettings.currentTheme}

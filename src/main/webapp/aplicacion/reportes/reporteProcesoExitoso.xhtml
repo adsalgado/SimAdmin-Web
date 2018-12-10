@@ -1,0 +1,172 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="head">
+        <style>
+            .ui-paginator {
+                text-align: left !important;
+            }
+        </style>
+    </ui:define> 
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-users w3-margin-right w3-margin-left" /> Proceso Exitoso
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:outputPanel class="w3-card-8 w3-round-medium" id="pnlBusqueda">
+                <p:panel>
+                    <f:facet name="header">
+                        Búsqueda
+                    </f:facet>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-2">
+                            <div>
+                                <p:outputLabel value="Estatus Inicial  " for="estatus" />
+                            </div>
+                            <p:selectOneMenu id="estatus" value="#{reporteProcesoExitosoBean.estatusInicial}" style="width:100%">
+                                <f:selectItem itemLabel="-- Seleccione un estatus --" itemValue="" />
+                                <f:selectItems value="#{reporteProcesoExitosoBean.estatus}" var="estatus" itemLabel="#{estatus.nombre}" itemValue="#{estatus.id}" />
+                            </p:selectOneMenu>
+                        </div> 
+                        <div class="ui-g-12 ui-lg-6 ui-xl-3">
+                            <div>
+                                <p:outputLabel value="" for="" />
+                            </div>
+                            <p:commandButton value="Buscar" action="#{reporteProcesoExitosoBean.obtenerChips()}" icon="fa fa-search" disabled="false" style="width: 35%;" update="@([id$=msgs]) @([id$=dtReporte]) @([id$=pnlResultado]) @([id$=pnlBusqueda])" process="@([id$=pnlBusqueda])"/>                         
+                        </div>
+                    </div>
+                </p:panel>
+            </p:outputPanel>
+            <p:outputPanel class="w3-card-8 w3-margin-top w3-round-medium" id="pnlResultado">
+                <p:panel styleClass="w3-container blockable w3-padding-0" >
+                    <f:facet name="header">
+                        Resultado:
+                    </f:facet>
+                    <p:remoteCommand name="actualizaTabla" process="@([id$=pnlBusqueda])" action="#{reporteProcesoExitosoBean.search()}" update="@([id$=msgs]) @([id$=dtDN]) @([id$=pnlChipsInfo]) @([id$=pnlBusqueda])" />
+                    <p:dataTable id="dtReporte" value="#{reporteProcesoExitosoBean.chips}" var="reporte" paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {Exporters}"
+                                 rowsPerPageTemplate="50, 100, 500" paginator="true" rows="100" style="margin-top:0; margin-bottom:20px" emptyMessage="No se ha seleccionado el tipo de parámetro."
+                                 resizableColumns="true" scrollable="true" scrollWidth="280%" editable="true">
+
+                        <p:ajax event="rowEdit" process="@this @([id$=dtDN])" listener="#{reporteProcesoExitosoBean.onRowEdit}" update="@([id$=msgs]) @([id$=dtDN])" />
+                        <p:ajax event="rowEditCancel" listener="#{reporteProcesoExitosoBean.onRowCancel}" update="@([id$=msgs]) @([id$=dtDN])" />
+
+                        <f:facet name="{Exporters}">
+                            <h:commandLink>
+                                <p:graphicImage name="images/excel.png" width="34" title="Exportar a excel"/>
+                                <p:dataExporter type="xls" target="dtReporte" fileName="Chips" />
+                            </h:commandLink>
+                        </f:facet>
+
+                        <p:column headerText="ICCID" filterBy="#{reporte.serie}" filterStyle="width:100%" style="width: 15%">
+                            <h:outputText value="#{reporte.serie}" />
+                        </p:column>
+                        <p:column headerText="Cliente" filterBy="#{reporte.nombreCliente}" filterStyle="width:100%" style="width: 20%">
+                            <h:outputText value="#{reporte.nombreCliente}" />
+                        </p:column>
+                        <p:column headerText="Supervisor" filterBy="#{reporte.usuarioSupervisor.nombre} #{reporte.usuarioSupervisor.paterno} #{reporte.usuarioSupervisor.materno}" filterStyle="width:100%" style="width: 20%">
+                            <h:outputText value="#{reporte.usuarioSupervisor.nombre} #{reporte.usuarioSupervisor.paterno} #{reporte.usuarioSupervisor.materno}" />
+                        </p:column>
+                        <p:column headerText="Fecha Asignación Supervisor" filterBy="#{reporte.fechaAsignacionSupervisor}" style="width: 12%">
+                            <h:outputText value="#{reporte.fechaAsignacionSupervisor}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Vendedor" filterBy="#{reporte.usuarioVendedor.nombre} #{reporte.usuarioVendedor.paterno} #{reporte.usuarioVendedor.materno}" filterStyle="width:100%" style="width: 20%">
+                            <h:outputText value="#{reporte.usuarioVendedor.nombre} #{reporte.usuarioVendedor.paterno} #{reporte.usuarioVendedor.materno}" />
+                        </p:column>
+                        <p:column headerText="Fecha de Asignación Vendedor" filterBy="#{reporte.fechaAsignacionVendedor}" style="width: 12%">
+                            <h:outputText value="#{reporte.fechaAsignacionVendedor}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Mayorista" filterBy="#{reporte.usuarioMayorista.nombre} #{reporte.usuarioMayorista.paterno} #{reporte.usuarioMayorista.materno}" filterStyle="width:100%" style="width: 20%">
+                            <h:outputText value="#{reporte.usuarioMayorista.nombre} #{reporte.usuarioMayorista.paterno} #{reporte.usuarioMayorista.materno}" />
+                        </p:column>
+                        <p:column headerText="Fecha Asignación Mayorista" filterBy="#{reporte.fechaAsignacionMayorista}" filterStyle="width:100%" style="width: 12%">
+                            <h:outputText value="#{reporte.fechaAsignacionMayorista}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="NIP" filterBy="#{reporte.nip}" filterStyle="width:100%" style="width: 8%">
+                            <h:outputText value="#{reporte.nip}" />
+                        </p:column>
+                        <p:column headerText="Compañía" filterBy="#{reporte.compania.nombre}" filterStyle="width:100%" style="width: 8%">
+                            <h:outputText value="#{reporte.compania.nombre}" />
+                        </p:column>
+                        <p:column headerText="DN" filterBy="#{reporte.dn}" filterStyle="width:100%" style="width: 8%">
+                            <h:outputText value="#{reporte.dn}" />
+                        </p:column>
+                        <p:column headerText="DN Temporal" filterBy="#{reporte.dnTemporal}" filterStyle="width:100%" style="width: 8%">
+                            <h:outputText value="#{reporte.dnTemporal}" />
+                        </p:column>   
+                        <p:column headerText="Folio" filterBy="#{reporte.folio}" filterStyle="width:100%" style="width: 8%">
+                            <h:outputText value="#{reporte.folio}" />                            
+                        </p:column>
+                        <p:column headerText="Fecha de Registro" filterBy="#{reporte.fecha}" filterStyle="width:100%" style="width: 12%">
+                            <h:outputText value="#{reporte.fecha}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Fecha de Venta" filterBy="#{reporte.fechaVenta}" filterStyle="width:100%" style="width: 12%">
+                            <h:outputText value="#{reporte.fechaVenta}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Estatus" style="width: 15%">
+                            <p:cellEditor rendered="#{reporte.estatusId ne 16}">
+                                <f:facet name="output"><h:outputText style="color:#{reporte.estatusId eq 6 ? '#f59d44':''}" value="#{reporte.estatusId eq 6 ? '[--Pendiente por liberar--]':reporte.estatusId}" /></f:facet>
+                                <f:facet name="input">
+                                    <p:selectOneMenu value="#{reporteProcesoExitosoBean.estatusLiberado}" converter="#{estatusConverter}" converterMessage="No converter found" style="width:100%">
+                                        <f:selectItem itemValue="#{null}" itemLabel="[-- Liberar --]" />
+                                        <f:selectItems value="#{reporteProcesoExitosoBean.estatus}" var="estatus" itemLabel="#{estatus.nombre}" itemValue="#{estatus}" />
+                                    </p:selectOneMenu>
+                                </f:facet>
+                            </p:cellEditor>
+                            <h:outputText rendered="#{reporte.estatusId eq 16}" value="LIBERADO" />
+                        </p:column>
+<!--                        <p:column headerText="Fecha estatus inicial" filterBy="#{reporte.fechaEstatus}" style="width: 12%">
+                        <h:outputText value="#{reporte.fechaEstatus}" >
+                            <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                        </h:outputText>
+                    </p:column>-->
+                        <p:column headerText="Portabilidad" filterBy="#{reporte.estatusPortabilidad.nombre}" filterStyle="width:100%" style="width: 20%">
+                            <h:outputText value="#{reporte.estatusPortabilidad.nombre}" />
+                        </p:column>
+                        <p:column headerText="Fecha estatus portabilidad" filterBy="#{reporte.fechaEstPortabilidad}" filterStyle="width:100%" style="width: 12%">
+                            <h:outputText value="#{reporte.fechaEstPortabilidad}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Proceso" filterBy="#{reporte.estatusProceso.nombre}" filterStyle="width:100%" style="width: 8%">
+                            <h:outputText value="#{reporte.estatusProceso.nombre}" />
+                        </p:column>
+                        <p:column headerText="Fecha estatus proceso" filterBy="#{reporte.fechaEstProceso}" filterStyle="width:100%" style="width: 12%">
+                            <h:outputText value="#{reporte.fechaEstProceso}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Observación" style="width: 20%">
+                            <p:cellEditor>
+                                <f:facet name="output"><h:outputText value="#{reporte.observacionErrorProceso}" /></f:facet>
+                                <f:facet name="input"><p:inputText id="obs" value="#{reporte.observacionErrorProceso}" style="width:100%"/></f:facet>
+                            </p:cellEditor>
+                        </p:column>
+                        <p:column style="width:1%">
+                            <p:rowEditor />
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+    </ui:define>
+</ui:composition>
+

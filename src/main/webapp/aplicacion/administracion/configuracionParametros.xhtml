@@ -1,0 +1,224 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                template="/templates/adminLTE/template.xhtml" >
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-th" /> Parámetros del Sistema
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:outputPanel class="w3-card-8 w3-round-medium" id="pnlBusqueda" rendered="#{confParametrosBean.showPanelDatos}">
+
+                <p:panel >
+                    <f:facet name="header">
+                        Configuración de Menú
+                    </f:facet>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Tipo parámetro: " for="tipo" />
+                            </div>
+                            <p:selectOneMenu id="tipo" value="#{confParametrosBean.idTipo}" style="width: 95%;">
+                                <p:ajax process="@([id$=tipo])" update="@([id$=pnlBusqueda]) @([id$=pnlData])" listener="#{confParametrosBean.onTipoParametroChange()}" />
+                                <f:selectItem itemValue="#{null}" itemLabel="[-- TODOS --]" />
+                                <f:selectItems value="#{confParametrosBean.tipos}" var="tipo" itemValue="#{tipo.id}" itemLabel="#{tipo.descripcion}" />
+                            </p:selectOneMenu>                            
+                        </div>
+                    </div>
+                </p:panel>
+
+            </p:outputPanel>
+
+            <p:outputPanel class="w3-card-8 w3-margin-top w3-round-medium" id="pnlData" rendered="#{confParametrosBean.showPanelDatos}">
+
+                <p:panel styleClass="w3-container blockable w3-padding-0" >
+                    <f:facet name="header">
+                        Consulta de Parámetros
+                    </f:facet>
+
+                    <p:treeTable value="#{confParametrosBean.root}" var="registro" 
+                                 selectionMode="single" selection="#{confParametrosBean.selectedNode}" 
+                                 style="margin-top:0" rendered="#{confParametrosBean.root ne null}" 
+                                 emptyMessage="No se ha seleccionado el tipo de parámetro.">
+
+                        <p:ajax event="select" update="@([id$=btnUpd]) @([id$=btnDel])" />
+                        <p:ajax event="unselect" update="@([id$=btnUpd]) @([id$=btnDel])" />
+
+                        <f:facet name="footer">
+                            <p:outputPanel style="width: 100%; text-align: left;">
+                                <p:commandButton id="btnAlt" value="Nuevo" icon="fa fa-lg fa-plus-square" action="#{confParametrosBean.cleanObject}"  
+                                                 process="@this" update="@([id$=formNewRegistro]) @([id$=formData])" style="padding: 3px 7px;" >
+                                    <f:setPropertyActionListener value="#{null}" target="#{confParametrosBean.instance}" />
+                                    <f:setPropertyActionListener value="false" target="#{confParametrosBean.showPanelDatos}" />
+                                    <f:setPropertyActionListener value="create" target="#{confParametrosBean.tipoActualizacion}" />
+                                </p:commandButton>
+                                <p:spacer width="5" />
+                                <p:commandButton id="btnUpd" value="Modificar" icon="fa fa-lg fa-edit" disabled="#{confParametrosBean.selectedNode eq null}"
+                                                 process="@this" update="@([id$=formNewRegistro]) @([id$=formData])" style="padding: 3px 7px;" 
+                                                 action="#{confParametrosBean.onRowEdit()}" >
+                                    <f:setPropertyActionListener value="false" target="#{confParametrosBean.showPanelDatos}" />
+                                    <f:setPropertyActionListener value="update" target="#{confParametrosBean.tipoActualizacion}" />
+                                </p:commandButton>   
+                                <p:spacer width="5" />
+                                <p:commandButton id="btnDel" value="Eliminar" icon="fa fa-lg fa-trash" disabled="#{confParametrosBean.selectedNode eq null}"
+                                                 process="@this" update="@([id$=formNewRegistro]) @([id$=formData])" style="padding: 3px 7px;" 
+                                                 action="#{confParametrosBean.delete()}" >
+                                    <p:confirm header="Confirmation" message="¿Deseas eliminar el parámetro seleccionado?" icon="ui-icon-alert" />
+                                </p:commandButton>   
+                            </p:outputPanel>
+                        </f:facet>
+                        <p:column headerText="Parámetro">
+                            <h:outputText value="#{registro.claveParametro}" />
+                        </p:column>
+                        <p:column headerText="Descripción">
+                            <h:outputText value="#{registro.descripcion}" />
+                        </p:column>
+                        <p:column headerText="Característica 1">
+                            <h:outputText value="#{registro.caracteristica1}" />
+                        </p:column>
+                        <p:column style="width:35px; text-align: center;" rendered="false" >
+                            <p:commandLink process="@this" action="#{confParametrosBean.onRowEdit}" update="@form @([id$=formNewRegistro]) @([id$=msgs])" title="Modificar parámetro" >
+                                <span class="fa fa-lg fa-edit"></span> 
+                                <f:setPropertyActionListener value="false" target="#{confParametrosBean.showPanelDatos}" />
+                                <f:setPropertyActionListener value="update" target="#{confParametrosBean.tipoActualizacion}" />
+                            </p:commandLink> 
+                        </p:column>
+                        <p:column style="width:35px; text-align: center" rendered="false" >
+                            <p:commandLink action="#{confParametrosBean.delete}" process="@this" update="@form @([id$=formNewRegistro]) @([id$=msgs])" title="Eliminar parámetro" >
+                                <span class="fa fa-lg fa-trash"></span> 
+                                <p:confirm header="Confirmation" message="¿Deseas eliminar el parámetro seleccionado?" icon="ui-icon-alert" />
+                            </p:commandLink> 
+                        </p:column>
+                    </p:treeTable>
+                </p:panel>
+
+            </p:outputPanel>
+        </h:form>
+
+        <h:form id="formNewRegistro" >
+
+            <p:outputPanel class="w3-card-8 w3-margin-top w3-round-medium" id="pnlActualizacion" rendered="#{not confParametrosBean.showPanelDatos}">
+
+                <p:panel>
+
+                    <f:facet name="header">
+                        <h:outputText value="Alta de Parámetro" rendered="#{confParametrosBean.tipoActualizacion eq 'create'}" />
+                        <h:outputText value="Actualización de Parámetro" rendered="#{confParametrosBean.tipoActualizacion eq 'update'}" />
+                    </f:facet>
+
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Tipo parámetro: " for="tipoAct" />
+                            </div>
+                            <p:selectOneMenu id="tipoAct" value="#{confParametrosBean.instance.tipoParametroId}" style="width: 95%;"
+                                             required="true" disabled="#{confParametrosBean.selectedNode ne null}">
+                                <f:selectItem itemValue="#{null}" itemLabel="[-- TODOS --]" />
+                                <f:selectItems value="#{confParametrosBean.tipos}" var="tipo" itemValue="#{tipo.id}" itemLabel="#{tipo.descripcion}" />
+                            </p:selectOneMenu>                            
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Parent: " for="parent" />
+                            </div>
+                            <p:inputText id="parent" value="#{confParametrosBean.instance.parentId}" style="width: 95%;"  
+                                         disabled="true" />                          
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Clave parámetro: " for="claveParametro" />
+                            </div>
+                            <p:inputText id="claveParametro" value="#{confParametrosBean.instance.claveParametro}" style="width: 95%;" 
+                                         required="true" disabled="#{confParametrosBean.tipoActualizacion eq 'update'}" maxlength="20" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Descripción: " for="descripcion" />
+                            </div>
+                            <p:inputText id="descripcion" value="#{confParametrosBean.instance.descripcion}" style="width: 95%;" 
+                                         required="true"  maxlength="128" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Parámetro 1: " for="param1" />
+                            </div>
+                            <p:inputText id="param1" value="#{confParametrosBean.instance.caracteristica1}" style="width: 95%;" 
+                                         required="false" maxlength="25" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Parámetro 2: " for="param2" />
+                            </div>
+                            <p:inputText id="param2" value="#{confParametrosBean.instance.caracteristica2}" style="width: 95%;" 
+                                         required="false" maxlength="25" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Parámetro 3: " for="param3" />
+                            </div>
+                            <p:inputText id="param3" value="#{confParametrosBean.instance.caracteristica3}" style="width: 95%;" 
+                                         required="false" maxlength="25" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Parámetro 4: " for="param4" />
+                            </div>
+                            <p:inputText id="param4" value="#{confParametrosBean.instance.caracteristica4}" style="width: 95%;" 
+                                         required="false" maxlength="25" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Parámetro 5: " for="param5" />
+                            </div>
+                            <p:inputText id="param5" value="#{confParametrosBean.instance.caracteristica5}" style="width: 95%;" 
+                                         required="false" maxlength="25" />
+                        </div>
+
+                    </div>
+
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-10 ui-xl-10">
+                            <div>
+                                <p:outputLabel value="Código: " for="codigo" />
+                            </div>
+                            <p:inputTextarea id="codigo" value="#{confParametrosBean.instance.configuracion}" style="width: 95%; height: 250px;" 
+                                             required="false" />
+                        </div>
+                    </div>
+
+                    <f:facet name="footer" >
+                        <p:commandButton type="submit" value="Agregar" actionListener="#{confParametrosBean.create}" process="@form"
+                                         update="@([id$=formNewRegistro]) @([id$=formData]) @([id$=msgs])" icon="fa fa-save" 
+                                         rendered="#{confParametrosBean.tipoActualizacion eq 'create'}" />
+                        <p:commandButton type="submit" value="Actualizar" actionListener="#{confParametrosBean.update}" process="@form"
+                                         update="@([id$=formNewRegistro]) @([id$=formData]) @([id$=msgs])" icon="fa fa-edit" 
+                                         rendered="#{confParametrosBean.tipoActualizacion eq 'update'}" />
+                        <p:spacer width="10" />
+                        <p:commandButton value="Cancelar" update="@([id$=formNewRegistro]) @([id$=formData])" process="@this" icon="fa fa-hand-o-left" >
+                            <f:setPropertyActionListener value="true" target="#{confParametrosBean.showPanelDatos}" />
+                            <p:resetInput target="pnlActualizacion" />
+                        </p:commandButton>
+
+                    </f:facet>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+
+    </ui:define>
+
+</ui:composition>

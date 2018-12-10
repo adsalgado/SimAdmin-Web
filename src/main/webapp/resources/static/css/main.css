@@ -1,0 +1,36 @@
+
+input,
+select,
+textarea,
+button,
+.ui-widget,
+.ui-widget input,
+.ui-widget select,
+.ui-widget textarea,
+.ui-widget button {
+    font-family: "latoregular","Trebuchet MS",Arial,Helvetica,sans-serif;
+    font-size: 13px !important;
+}
+
+.ui-selectonemenu .ui-selectonemenu-trigger {
+    width: 23px !important;
+}
+
+.ui-widget-header,
+.ui-widget-content,
+.ui-widget-header .ui-widget-header,
+.ui-widget-content .ui-widget-content {
+    font-family: "latoregular","Trebuchet MS",Arial,Helvetica,sans-serif;
+    font-size: 13px !important;
+}
+
+.ajax-image {
+    position: absolute;
+    float: left;
+    top: 2px;
+    z-index: 800;
+}
+
+.ui-growl { 
+    top:65px !important;
+}

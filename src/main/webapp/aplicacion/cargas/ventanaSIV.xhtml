@@ -1,0 +1,113 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-upload" /> Carga de ventana SIV
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <h:form id="frmData">
+            <p:panel id="pnlTraspasosPendientes" header="Datos" class="blockable">
+                <p:menubar>
+                    <p:menuitem value="Cargar archivo" icon="fa fa-upload" process="@this" 
+                                action="#{cargaVentanaSIVBean.cleanCarga}" update="@([id$=formCarga])" 
+                                oncomplete="PF('idCarga').show();" class="w3-margin-right">
+                    </p:menuitem>    
+                </p:menubar>
+            </p:panel>
+            <p:messages id="msgs" showDetail="true" closable="true" autoUpdate="true" />
+        </h:form>
+
+        <p:dialog widgetVar="idCarga" id="idCarga" responsive="true" modal="true" dynamic="true" width="800">
+            <f:facet name="header" >
+                Carga de chips
+            </f:facet>
+
+            <h:form id="formCarga" enctype="multipart/form-data">
+                
+                <p:panel class="w3-card-8 w3-round w3-white w3-padding-0 blockable" id="pnlCarga" header="Datos">
+
+                    <p:outputPanel class="ui-g ui-fluid" id="rowFile">
+                        <div class="ui-g-12 ui-lg-12 ui-xl-12">
+                            <div>
+                                <p:outputLabel value="Archivo" for="arch" />
+                            </div>
+                                
+                            <p:fileUpload id="arch" fileUploadListener="#{cargaVentanaSIVBean.handleFileUpload}" mode="advanced" dragDropSupport="false"
+                                          process="@this @([id$=feRuta])" update="@([id$=msgs]) @([id$=rowFile]) @([id$=pnlButtons])" sizeLimit="3000000" fileLimit="3" allowTypes="/(\.|\/)(xls|xlsx)$/" 
+                                          cancelLabel="Cancelar" uploadLabel="Cargar archivo" label="Seleccionar archivo"  auto="true" 
+                                          rendered="#{cargaVentanaSIVBean.fileData eq null}" 
+                                          required="true" requiredMessage="El campo 'Archivo' es requerido." />
+
+                            <p:outputPanel style="display: inline-block; " rendered="#{cargaVentanaSIVBean.fileData ne null}" >
+                                <h:outputText value="#{cargaVentanaSIVBean.fileData.fileName}" class="w3-margin-right"  />
+                                <p:commandButton icon="fa fa-close" process="@this" update="@([id$=msgs]) @([id$=rowFile])" >
+                                    <f:setPropertyActionListener target="#{cargaVentanaSIVBean.fileData}" value="#{null}" />
+                                </p:commandButton>
+                            </p:outputPanel>
+
+                        </div>
+                    </p:outputPanel>
+
+                    <f:facet name="footer">
+                        <p:outputPanel id="pnlButtons">
+                            <p:commandButton value="Procesar" icon="fa fa-gears" process="@([id$=formCarga])" action="#{cargaVentanaSIVBean.doProcesaArchivo}"
+                                             update="@form @([id$=formData]) @([id$=pnlErrores]) @([id$=msgs])" disabled="#{cargaVentanaSIVBean.fileData eq null}"
+                                             oncomplete="if (args.saved) {PF('idCarga').hide();}" />
+                            <p:spacer width="10" />
+                            <p:commandButton value="Cancelar" icon="fa fa-ban" process="@this" update="@form @([id$=formData]) @([id$=msgs])" action="#{cargaVentanaSIVBean.cleanCarga}" 
+                                             oncomplete="PF('idCarga').hide();" >
+                                <p:resetInput target="pnlCarga" />
+                            </p:commandButton>
+                            <p:commandButton value="Layout archivo" icon="fa fa-file-excel-o" process="@this" action="#{cargaVentanaSIVBean.doGeneraArchivoMuestra}"
+                                             update="@([id$=msgs])" ajax="false" class="w3-right" rendered="false" />                            
+                        </p:outputPanel>
+                    </f:facet>
+                </p:panel>
+
+            </h:form>
+        </p:dialog>
+
+        <p:dialog header="Información del Archivo" widgetVar="dlgFile" minHeight="450" modal="true"
+                  id="ddFile" width="800" >
+            <h:form id="dialogFile">
+                <p:panel class="w3-card-8 w3-round w3-white w3-padding-0 blockable" id="pnlErrores" header="Lista de Datos no Cargados">
+                    
+                    <p:outputPanel class="w3-container  w3-padding w3-theme-light" id="pnlButtons">
+
+                        <p:dataTable value="#{cargaVentanaSIVBean.errores}" var="registro" rows="10" id="dtErrores"
+                                     paginator="true" paginatorAlwaysVisible="false" paginatorPosition="bottom" rowsPerPageTemplate="15,25,50" 
+                                     paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     resizableColumns="true" scrollable="true">
+
+                            <p:column headerText="Línea" width="45" style="text-align: center;" >
+                                <h:outputText value="#{registro.errorLine}" />
+                            </p:column>
+
+                            <p:column headerText="Error" >
+                                <h:outputText value="#{registro.message}" />
+                            </p:column>
+
+                        </p:dataTable>
+
+                        <p:commandButton value="Cancelar" onclick="PF('dlgFile').hide();" style="padding: 3px 10px;" 
+                                         immediate="true" update="@([id$=formData])" icon="fa fa-remove"/>
+                        <p:spacer width="10"/>
+                        <p:commandButton value="" ajax="false" onclick="PrimeFaces.monitorDownload(start, stop);" onsuccess="PF('dlgFile').hide();"
+                                         style="padding: 10px 1px;" icon="fa fa-lg fa-cloud-download"> 
+                            <p:dataExporter type="xls" target="dialogFile:dtErrores" fileName="Errores" />
+                        </p:commandButton>
+                    </p:outputPanel>
+                </p:panel>
+            </h:form>
+        </p:dialog>
+
+    </ui:define>
+
+</ui:composition>

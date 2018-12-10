@@ -1,0 +1,39 @@
+server:
+    contextPath: /SimAdmin-Web
+    port: 8082
+    error:
+        whitelabel:
+            enabled: false
+spring:
+    profiles: prod
+    datasource:
+        url: ${JDBC_DATABASE_URL}
+        username: ${SPRING_DATASOURCE_USERNAME}
+        password: ${SPRING_DATASOURCE_PASSWORD}
+        testWhileIdle: true
+        validationQuery: SELECT 1
+        type: com.zaxxer.hikari.HikariDataSource
+        hikari:
+            connection-timeout: 60000
+            maximum-pool-size: 10
+    jpa:
+        hibernate:
+            ddl-auto: none
+            naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+        properties:
+            hibernate:
+                current_session_context_class: org.springframework.orm.hibernate5.SpringSessionContext
+                dialect: org.hibernate.dialect.MySQL5Dialect
+        show-sql: false
+    thymeleaf:
+        cache: false
+mx:
+    sharkit:
+        aplication:
+            primefacesTheme:
+                mytheme
+jsf:
+    PROJECT_STAGE: Production
+    FACELETS_LIBRARIES: /tags/tags.taglib.xml
+    primefaces:
+        theme: ${userSettings.currentTheme}

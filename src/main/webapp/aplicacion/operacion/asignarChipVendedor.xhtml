@@ -1,0 +1,124 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-user-plus w3-margin-right w3-margin-left" /> Asignación de chips a promotor
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:focus context="pnlSuper" />
+            <p:outputPanel class="w3-card-8 w3-round-medium" id="pnlSuper">
+                <p:panel id="pasignar">
+                    <f:facet name="header">
+                        Recepción de chips
+                    </f:facet>
+                    <div class="ui-g ui-fluid">
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Distribuidor:  " for="dist" />
+                            </div>
+                            <p:selectOneMenu id="dist" required="true" requiredMessage="El Campo 'Distribuidor' es requerido" value="#{asignacionVendedorBean.idDistribuidor}"
+                                             disabled="#{asignacionVendedorBean.distribuidorDisabled}">
+                                <p:ajax process="@this @([id$=dist])" listener="#{asignacionVendedorBean.onDistribuidorChange}" 
+                                        update="@form" />
+                                <f:selectItem itemValue="#{null}" itemLabel="[-- TODOS --]" />
+                                <f:selectItems value="#{asignacionVendedorBean.distribuidores}" var="dist" itemValue="#{dist.id}" itemLabel="#{dist.nombre} #{dist.paterno} #{dist.materno}" />
+                            </p:selectOneMenu>                            
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Subdistribuidor:  " for="subdistribuidor" />
+                            </div>
+                            <p:selectOneMenu id="subdistribuidor" required="true" requiredMessage="El Campo es requerido" value="#{asignacionVendedorBean.idSupervisor}"
+                                             disabled="#{asignacionVendedorBean.subdistribuidorDisabled}">
+                                <p:ajax process="@this @([id$=subdistribuidor])" listener="#{asignacionVendedorBean.onSubDistribuidorChange}" 
+                                        update="@form" />
+                                <f:selectItem itemValue="#{null}" itemLabel="[-- TODOS --]" />
+                                <f:selectItems value="#{asignacionVendedorBean.subdistribuidores}" var="subdistribuidor" itemValue="#{subdistribuidor.id}" itemLabel="#{subdistribuidor.nombre} #{subdistribuidor.paterno} #{subdistribuidor.materno}" />
+                            </p:selectOneMenu>                            
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Promotor:  " for="promotor" />
+                            </div>
+                            <p:selectOneMenu id="promotor" required="true" requiredMessage="El Campo es 'Promotor' requerido" value="#{asignacionVendedorBean.idVendedor}">
+                                <f:selectItem itemValue="#{null}" itemLabel="[-- TODOS --]" />
+                                <f:selectItems value="#{asignacionVendedorBean.promotores}" var="promotor" itemValue="#{promotor.id}" itemLabel="#{promotor.nombre} #{promotor.paterno} #{promotor.materno}" />
+                            </p:selectOneMenu>                            
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-2">
+                            <div>
+                                <p:outputLabel value="Asignación:  " for="tipo" />
+                            </div>
+                            <p:selectOneMenu id="tipo" required="true" requiredMessage="El Campo es requerido" value="#{asignacionVendedorBean.tipoAsignacion}">
+                                <p:ajax process="@this @([id$=tipo]) @([id$=dist]) @([id$=subdistribuidor]) @([id$=promotor])" update="@form" />
+                                <f:selectItem itemValue="SSID" itemLabel="SSID" />
+                                <f:selectItem itemValue="RANGO" itemLabel="RANGO" />
+                            </p:selectOneMenu>                            
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-3">
+                            <div>
+                                <p:outputLabel for="iccid" value="ICCID Inicial:"  />
+                            </div>   
+                            <p:inputText id="iccid" value="#{asignacionVendedorBean.serie}" required="true" requiredMessage="El Campo 'iccid' es requerido" maxlength="20"/>
+                        </div>
+                        <p:outputPanel class="ui-g-12 ui-lg-6 ui-xl-3" rendered="#{asignacionVendedorBean.tipoAsignacion eq 'RANGO'}">
+                            <div>
+                                <p:outputLabel for="iccidF" value="ICCID Final:"  />
+                            </div> 
+                            <p:inputText id="iccidF" value="#{asignacionVendedorBean.serieFinal}" maxlength="20" required="true" requiredMessage="El Campo 'ICCID Final' es requerido"  />
+                        </p:outputPanel>
+                        
+                    </div>
+
+                    <f:facet name="footer" >
+                        <p:commandButton value="Aceptar" action="#{asignacionVendedorBean.onCreateAsignacion()}" update="@([id$=msgs]) @([id$=asuper]) @([id$=pasignar])" 
+                                         icon="fa fa-save" disabled="false" oncomplete="reloadChips()" /> 
+                    </f:facet>
+
+                </p:panel>
+            </p:outputPanel>
+
+            <p:remoteCommand name="reloadChips" process="@this" action="#{asignacionVendedorBean.obtenerChips}" 
+                             update="@([id$=pnlDataAsignaciones])" />
+
+            <p:outputPanel class="w3-card-8 w3-margin-top w3-round-medium" id="pnlDataAsignaciones">
+                <p:panel styleClass="w3-container blockable w3-padding-0" >
+                    <f:facet name="header">
+                        Asignaciones
+                    </f:facet>
+
+                    <p:dataTable id="asuper" value="#{asignacionVendedorBean.chips}" var="asignaciones"
+                                 style="margin-top:0" emptyMessage="No se ha seleccionado el tipo de parámetro." sortBy="#{asignaciones.fechaAsignacionSupervisor}" sortOrder="descending">
+                        <p:column headerText="Promotor">
+                            <h:outputText value="#{asignaciones.usuarioVendedor.nombre} #{asignaciones.usuarioVendedor.paterno} #{asignaciones.usuarioVendedor.materno}" />
+                        </p:column>
+
+                        <p:column headerText="ICCID">
+                            <h:outputText value="#{asignaciones.serie}" />
+                        </p:column>
+                        <p:column headerText="Fecha de Asignación">
+                            <h:outputText value="#{asignaciones.fechaAsignacionSupervisor}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+    </ui:define>
+    
+</ui:composition>

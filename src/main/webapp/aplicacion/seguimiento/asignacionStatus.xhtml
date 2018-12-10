@@ -1,0 +1,121 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-users w3-margin-right w3-margin-left" /> Estatus del Proceso
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:focus context="pnlDN" />
+            <p:outputPanel class="w3-card-8 w3-round-medium" id="pnlDN">
+                <p:panel id="pasignar">
+                    <f:facet name="header">
+                        Estatus del Proceso
+                    </f:facet>
+                    <p:remoteCommand name="reload" update="@([id$=pnlTmp])" action="#{asignacionEstatusProcesoBean.search()}" />
+                    <p:outputPanel id="pnlTmp" >
+                        <p:dataTable id="dtDN" value="#{asignacionEstatusProcesoBean.chips}" editable="true" var="asignacionSP"
+                                     style="margin-top:0" emptyMessage="No se ha seleccionado el tipo de parámetro.">
+
+                            <p:ajax event="rowEdit" listener="#{asignacionEstatusProcesoBean.onRowEdit}" update="@([id$=msgs])" oncomplete="handleRequest(xhr, status, args);" />
+                            <p:ajax event="rowEditCancel" listener="#{asignacionEstatusProcesoBean.onRowCancel}" update="@([id$=msgs]) @([id$=dtDN])" />
+                            <p:column style="width:32px">
+                                <p:rowEditor />
+                            </p:column>
+                            <p:column headerText="ICCID" style="width: 12%">
+                                <h:outputText value="#{asignacionSP.serie}" />
+                            </p:column>
+                            <p:column headerText="Cliente">
+                                <h:outputText value="#{asignacionSP.nombreCliente}" />
+                            </p:column>
+                            <p:column headerText="Vendedor" style="width: 20%">
+                                <h:outputText value="#{asignacionSP.usuarioVendedor.nombre} #{asignacionSP.usuarioVendedor.paterno} #{asignacionSP.usuarioVendedor.materno}" />
+                            </p:column>
+                            <p:column headerText="DN Temporal">
+                                <h:outputText value="#{asignacionSP.dnTemporal}" />
+                            </p:column>
+                            <p:column headerText="DN">
+                                <h:outputText value="#{asignacionSP.dn}" />
+                            </p:column>
+                            <p:column headerText="NIP">
+                                <h:outputText value="#{asignacionSP.nip}" />
+                            </p:column>
+                            <p:column headerText="Compañía">
+                                <h:outputText value="#{asignacionSP.compania.nombre}" />
+                            </p:column>   
+                            <p:column headerText="Fecha de Registro">
+                                <h:outputText value="#{asignacionSP.fecha}" />
+                            </p:column>
+                            <p:column headerText="Portabilidad">
+                                <h:outputText value="#{asignacionSP.estatusPortabilidad.nombre}" />
+                            </p:column>
+                            <p:column headerText="Estatus">
+                                <p:cellEditor>
+                                    <f:facet name="output">
+                                        <h:outputText value="[-- Estatus del proceso --]" rendered="#{asignacionSP.estatusProceso eq null}" />
+                                        <h:outputText value="#{asignacionSP.estatusProceso.nombre}" rendered="#{asignacionSP.estatusProceso ne null}" />
+                                    </f:facet>
+                                    <f:facet name="input">
+                                        <p:selectOneMenu value="#{asignacionSP.estatusProceso}" converter="#{estatusConverter}" converterMessage="No converter found" style="width:100%" required="true" requiredMessage="El Campo es requerido">
+                                            <f:selectItem itemValue="#{null}" itemLabel="[-- Estatus del proceso --]" />
+                                            <f:selectItems value="#{asignacionEstatusProcesoBean.estatus}" var="estatus" itemLabel="#{estatus.nombre}" itemValue="#{estatus}" />
+                                        </p:selectOneMenu>
+                                    </f:facet>
+                                </p:cellEditor>
+                            </p:column>
+                            <p:column style="width:32px">
+                                <p:rowEditor />
+                            </p:column>                        
+                        </p:dataTable>
+                    </p:outputPanel>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+
+        <p:dialog  widgetVar="cdErroneo" appendTo="@(body)" header="" modal="true" dynamic="true" >
+            <h:form>
+                <p:panel style="border: none; padding: 0px;" id="pnlRefuse">
+                    <p:panelGrid >
+                        <p:row>
+                            <p:column >
+                                <p:outputLabel for="observaciones" value="Observaciones:" />
+                            </p:column>
+                            <p:column >
+                                <p:inputTextarea id="observaciones" value="#{asignacionEstatusProcesoBean.observaciones}" cols="55" rows="3" required="true"
+                                                 requiredMessage="Las observaciones son requeridas" maxlength="100" />
+                            </p:column>
+                        </p:row>
+                    </p:panelGrid>
+                    <f:facet name="footer">
+                        <p:commandButton value="Aceptar" icon="fa fa-check-square" action="#{asignacionEstatusProcesoBean.doAcualizaEstatusErroneo}" oncomplete="if (args.saved) { reload(); PF('cdErroneo').hide(); }" 
+                                         process="@([id$=pnlRefuse])" update="@([id$=pnlRefuse]) @([id$=formData]) @([id$=msgs])" />
+                        <p:spacer width="10" />
+                        <p:commandButton value="Cancelar" icon="fa fa-close" oncomplete="PF('cdErroneo').hide();" process="@this" update="@([id$=pnlRefuse])" >
+                            <f:setPropertyActionListener value="#{null}" target="#{asignacionEstatusProcesoBean.observaciones}" />
+                            <p:resetInput target="pnlRefuse" />
+                        </p:commandButton>
+                    </f:facet>
+                </p:panel>
+            </h:form>
+        </p:dialog>
+
+        <script type="text/javascript">
+            function handleRequest(xhr, status, args) {
+                if (args.saved) {
+                    reload();
+                } else if (args.dialogObservaciones) {
+                    PF('cdErroneo').show();
+                }
+            }
+        </script>
+
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,255 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-users w3-margin-right w3-margin-left" /> Reporte Mensual
+        </h2>        
+    </ui:define>
+
+    <ui:define name="head">
+        <style>
+            .ui-paginator {
+                text-align: left !important;
+            }
+            .ui-datepicker-calendar {
+                display: none !important;
+                color: #123 !important;
+            }
+            .ui-datepicker-month{
+                color: #4f545b !important;
+            }
+            .ui-datepicker-year{
+                color: #4f545b !important;
+            }
+            .ui-datepicker .ui-datepicker-header{
+                background: transparent;
+            }
+        </style>
+        <script type="text/javascript">
+            function regenererCal() {
+                year = $("#formData\\:mes .ui-datepicker-year").val();
+                month = $("#formData\\:mes .ui-datepicker-month").val();
+                $('#formData\\:mes_input').val(year + '-' + ('0' + (++month)).slice(-2) + '-01');
+
+                lastDay = new Date(year, month + 1, 0); // To get last day of month, see http://stackoverflow.com/a/13572682/1431979
+
+                // Check what is posted to your server
+                console.log("[voirCalendrier.js]regenererCal mes_input = " + $('#formData\\:mes_input').val());
+            }
+        </script>       
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:outputPanel class="w3-card-8 w3-round-medium" id="pnlBusqueda">
+                <p:panel>
+                    <f:facet name="header">
+                        Búsqueda
+                    </f:facet>
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-2">
+                            <p:outputLabel for="mes" value="Mes:" />
+                            <p:calendar id="mes" value="#{reporteMensualBean.fecha}" navigator="true" pattern="yyyy-MM-dd" mode="inline" effect="slideDown"  />
+                        </div>
+                        <div class="ui-g-12 ui-lg-6 ui-xl-3">
+                            <div>
+                                <p:outputLabel value="" for="" />
+                            </div>
+                            <p:commandButton value="Buscar" onclick="regenererCal();" action="#{reporteMensualBean.obtenerChips()}" icon="fa fa-search" disabled="false" style="width: 35%; left: 10%;" update="@([id$=msgs])" oncomplete="reload();" />                         
+                        </div>
+                    </div>
+                </p:panel>
+            </p:outputPanel>
+            <p:remoteCommand name="reload" update="@([id$=pnlResultado])" action="#{reporteMensualBean.obtenerChips()}" />
+            <p:outputPanel class="w3-card-8 w3-margin-top w3-round-medium" id="pnlResultado">
+                <p:panel styleClass="w3-container blockable w3-padding-0" >
+                    <f:facet name="header">
+                        Resultado:
+                    </f:facet>
+                    <p:dataTable id="dtReporte" value="#{reporteMensualBean.registros}" var="reporteM" 
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} {Exporters}"
+                                 rowsPerPageTemplate="50, 100, 500" reflow="true" paginator="true" rows="100" style="margin-top:0; margin-bottom:20px" emptyMessage="No se ha seleccionado el tipo de parámetro."
+                                 resizableColumns="true" scrollable="true" scrollWidth="500%" sortMode="multiple">
+                        <f:facet name="header">
+                            <p:commandButton id="toggler" type="button" value="Columnas" style="float:left" icon="ui-icon-calculator" />
+                            <p:columnToggler datasource="dtReporte" trigger="toggler">
+                                <p:ajax event="toggle" listener="#{reporteMensualBean.onToggle}"  />
+                            </p:columnToggler>
+                        </f:facet>
+                        <f:facet name="{Exporters}">
+                            <h:commandLink>
+                                <p:graphicImage name="images/excel.png" width="34" title="Exportar a excel"/>
+                                <p:dataExporter type="xls" target="dtReporte" fileName="Chips" />
+                            </h:commandLink>
+                        </f:facet>
+                        <p:column headerText="ICCID" width="3%" visible="#{reporteMensualBean.list[0]}">
+                            <h:outputText value="#{reporteM.serie}" />
+                        </p:column>
+                        <p:column headerText="DN" visible="#{reporteMensualBean.list[1]}">
+                            <h:outputText value="#{reporteM.dn}" />
+                        </p:column>
+                        <p:column headerText="DN Temporal" visible="#{reporteMensualBean.list[2]}">
+                            <h:outputText value="#{reporteM.dn_temporal}" />
+                        </p:column>  
+                        <p:column headerText="NIP" visible="#{reporteMensualBean.list[3]}">
+                            <h:outputText value="#{reporteM.nip}" />
+                        </p:column>  
+                        <p:column headerText="Supervisor" sortBy="#{reporteM.supervisor}" visible="#{reporteMensualBean.list[4]}">
+                            <h:outputText value="#{reporteM.supervisor}" />
+                        </p:column>
+                        <p:column headerText="Vendedor" sortBy="#{reporteM.vendedor}" visible="#{reporteMensualBean.list[5]}">
+                            <h:outputText value="#{reporteM.vendedor}" />
+                        </p:column>   
+                        <p:column headerText="Documento" visible="#{reporteMensualBean.list[6]}">
+                            <h:outputText value="#{reporteM.documento}" />
+                        </p:column>  
+                        <p:column headerText="Artículo" visible="#{reporteMensualBean.list[7]}">
+                            <h:outputText value="#{reporteM.articulo}" />
+                        </p:column>  
+                        <p:column headerText="Fecha Portabilidad" sortBy="#{reporteM.fecha_portabilidad}" visible="#{reporteMensualBean.list[8]}">
+                            <h:outputText value="#{reporteM.fecha_portabilidad}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Fecha Activación" sortBy="#{reporteM.fecha_activacion}" visible="#{reporteMensualBean.list[9]}">
+                            <h:outputText value="#{reporteM.fecha_activacion}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Fecha Baja" sortBy="#{reporteM.fecha_baja}" visible="#{reporteMensualBean.list[10]}">
+                            <h:outputText value="#{reporteM.fecha_baja}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Carrusel/Tecnología" visible="#{reporteMensualBean.list[11]}">
+                            <h:outputText value="#{reporteM.carrusel}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(0)}" visible="#{reporteMensualBean.list[12]}">
+                            <h:outputText value="#{reporteM.comision}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(1)}" visible="#{reporteMensualBean.list[13]}">
+                            <h:outputText value="#{reporteM.comision0}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(2)}" visible="#{reporteMensualBean.list[14]}">
+                            <h:outputText value="#{reporteM.comision1}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(3)}" visible="#{reporteMensualBean.list[15]}">
+                            <h:outputText value="#{reporteM.comision2}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(4)}" visible="#{reporteMensualBean.list[16]}">
+                            <h:outputText value="#{reporteM.comision3}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(5)}" visible="#{reporteMensualBean.list[17]}">
+                            <h:outputText value="#{reporteM.comision4}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(6)}" visible="#{reporteMensualBean.list[18]}">
+                            <h:outputText value="#{reporteM.comision5}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(7)}" visible="#{reporteMensualBean.list[19]}">
+                            <h:outputText value="#{reporteM.comision6}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(8)}" visible="#{reporteMensualBean.list[20]}">
+                            <h:outputText value="#{reporteM.comision7}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(9)}" visible="#{reporteMensualBean.list[21]}">
+                            <h:outputText value="#{reporteM.comision8}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(10)}" visible="#{reporteMensualBean.list[22]}">
+                            <h:outputText value="#{reporteM.comision9}" />
+                        </p:column>
+                        <p:column headerText="Comisión Portabilidad #{reporteMensualBean.obtenerMes(11)}" visible="#{reporteMensualBean.list[23]}">
+                            <h:outputText value="#{reporteM.comision10}" />
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(0)}" visible="#{reporteMensualBean.list[24]}">
+                            <h:outputText value="#{reporteM.comision_residual}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(1)}" visible="#{reporteMensualBean.list[25]}">
+                            <h:outputText value="#{reporteM.comision_residual0}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(2)}" visible="#{reporteMensualBean.list[26]}">
+                            <h:outputText value="#{reporteM.comision_residual1}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(3)}" visible="#{reporteMensualBean.list[27]}">
+                            <h:outputText value="#{reporteM.comision_residual2}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(4)}" visible="#{reporteMensualBean.list[28]}">
+                            <h:outputText value="#{reporteM.comision_residual3}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(5)}" visible="#{reporteMensualBean.list[29]}">
+                            <h:outputText value="#{reporteM.comision_residual4}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(6)}" visible="#{reporteMensualBean.list[30]}">
+                            <h:outputText value="#{reporteM.comision_residual5}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(7)}" visible="#{reporteMensualBean.list[31]}">
+                            <h:outputText value="#{reporteM.comision_residual6}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(8)}" visible="#{reporteMensualBean.list[32]}">
+                            <h:outputText value="#{reporteM.comision_residual7}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(9)}" visible="#{reporteMensualBean.list[33]}">
+                            <h:outputText value="#{reporteM.comision_residual8}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(10)}" visible="#{reporteMensualBean.list[34]}">
+                            <h:outputText value="#{reporteM.comision_residual9}" />                            
+                        </p:column>
+                        <p:column headerText="Comisión Residual #{reporteMensualBean.obtenerMes(11)}" visible="#{reporteMensualBean.list[35]}">
+                            <h:outputText value="#{reporteM.comision_residual10}" />                            
+                        </p:column>
+                        <p:column headerText="Fecha Siv" visible="#{reporteMensualBean.list[36]}">
+                            <h:outputText value="#{reporteM.fecha_siv}">
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Saldo Siv" visible="#{reporteMensualBean.list[37]}">
+                            <h:outputText value="#{reporteM.saldo_siv}" />
+                        </p:column>
+                        <p:column headerText="Cantidad Siv" visible="#{reporteMensualBean.list[38]}">
+                            <h:outputText value="#{reporteM.cantidad_siv}" />
+                        </p:column>
+                        <p:column headerText="Total Siv" visible="#{reporteMensualBean.list[39]}">
+                            <h:outputText value="#{reporteM.total_siv}" />
+                        </p:column>
+                        <p:column headerText="Importe Siv" visible="#{reporteMensualBean.list[40]}">
+                            <h:outputText value="#{reporteM.importe_siv}" />
+                        </p:column>
+                        <p:column headerText="Importe IVA Siv" visible="#{reporteMensualBean.list[41]}">
+                            <h:outputText value="#{reporteM.importe_iva_siv}" />
+                        </p:column>
+                        <p:column headerText="Fecha Dispersión" sortBy="#{reporteM.fecha_dispersion}" visible="#{reporteMensualBean.list[42]}">
+                            <h:outputText value="#{reporteM.fecha_dispersion}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                        <p:column headerText="Folio Recarga" visible="#{reporteMensualBean.list[43]}">
+                            <h:outputText value="#{reporteM.folio}" />
+                        </p:column>
+                        <p:column headerText="Monto Recarga" visible="#{reporteMensualBean.list[44]}">
+                            <h:outputText value="#{reporteM.monto}" />
+                        </p:column>
+                        
+                        <p:column headerText="Factura" visible="#{reporteMensualBean.list[45]}">
+                            <h:outputText value="#{reporteM.fatura}" />
+                        </p:column>
+                        <p:column headerText="Total" visible="#{reporteMensualBean.list[46]}">
+                            <h:outputText value="#{reporteM.total}" />
+                        </p:column>
+                        <p:column headerText="No. Credito" visible="#{reporteMensualBean.list[47]}">
+                            <h:outputText value="#{reporteM.nCredito}" />
+                        </p:column>
+                        <p:column headerText="Llave" visible="#{reporteMensualBean.list[48]}">
+                            <h:outputText value="#{reporteM.llave}" />
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+    </ui:define>
+</ui:composition>

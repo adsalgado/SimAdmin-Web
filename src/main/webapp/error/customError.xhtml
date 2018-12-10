@@ -1,0 +1,25 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+    <ui:define name="headerContent">
+        <h3><i class="fa fa-warning text-red"></i> <h:outputText value="Message:#{pfExceptionHandler.message}" /></h3>
+        <ol class="breadcrumb">
+            <li><a href="#{request.contextPath}/inicio.jsf"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">500 error</li>
+        </ol>
+    </ui:define>
+
+    <ui:define name="centerContent">
+
+
+        <p>
+            <h:outputText value="#{pfExceptionHandler.formattedStackTrace}" escape="false" />
+        </p>
+
+        <!-- /.error-page -->
+    </ui:define>
+
+</ui:composition>

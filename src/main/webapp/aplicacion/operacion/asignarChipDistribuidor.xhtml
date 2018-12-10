@@ -1,0 +1,97 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-users w3-margin-right w3-margin-left" /> Asignación de chips a distribuidor
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+            <p:focus context="pnlSuper" />
+            <p:outputPanel class="w3-card-8 w3-round-medium" id="pnlSuper">
+                <p:panel id="pasignar">
+                    <f:facet name="header">
+                        Asignación de chips
+                    </f:facet>
+                    <div class="ui-g ui-fluid">
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Distribuidor:  " for="distribuidor" />
+                            </div>
+                            <p:selectOneMenu id="distribuidor" required="true" requiredMessage="El Campo es requerido" value="#{asignacionDistribuidorBean.idDistribuidor}">
+                                <f:selectItem itemValue="#{null}" itemLabel="[-- TODOS --]" />
+                                <f:selectItems value="#{asignacionDistribuidorBean.currents}" var="supervisor" itemValue="#{supervisor.id}" itemLabel="#{supervisor.nombre} #{supervisor.paterno} #{supervisor.materno}" />
+                            </p:selectOneMenu>                            
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-2">
+                            <div>
+                                <p:outputLabel value="Asignación:  " for="tipo" />
+                            </div>
+                            <p:selectOneMenu id="tipo" required="true" requiredMessage="El Campo es requerido" value="#{asignacionDistribuidorBean.tipoAsignacion}">
+                                <p:ajax process="@this @([id$=tipo]) @([id$=distribuidor])" update="@form" />
+                                <f:selectItem itemValue="SSID" itemLabel="SSID" />
+                                <f:selectItem itemValue="RANGO" itemLabel="RANGO" />
+                            </p:selectOneMenu>                            
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-3">
+                            <div>
+                                <p:outputLabel for="iccid" value="ICCID:" rendered="#{asignacionDistribuidorBean.tipoAsignacion ne 'RANGO'}" />
+                                <p:outputLabel for="iccid" value="ICCID Inicial:" rendered="#{asignacionDistribuidorBean.tipoAsignacion eq 'RANGO'}" />
+                            </div>   
+                            <p:inputText id="iccid" value="#{asignacionDistribuidorBean.serie}" required="true" 
+                                         requiredMessage="El Campo 'iccid inicial' es requerido" maxlength="20"/>
+                        </div>
+
+                        <p:outputPanel class="ui-g-12 ui-lg-6 ui-xl-3" rendered="#{asignacionDistribuidorBean.tipoAsignacion eq 'RANGO'}">
+                            <div>
+                                <p:outputLabel for="iccidF" value="ICCID Final:"  />
+                            </div> 
+                            <p:inputText id="iccidF" value="#{asignacionDistribuidorBean.serieFinal}" required="true" 
+                                         requiredMessage="El Campo 'iccid final' es requerido" maxlength="20"/>
+                        </p:outputPanel>
+
+                    </div>
+                    <f:facet name="footer" >
+                        <p:commandButton value="Asignar" action="#{asignacionDistribuidorBean.onCreateAsignacion()}" update="@([id$=msgs]) @([id$=asuper]) @([id$=pasignar])" 
+                                         icon="fa fa-save" disabled="false" oncomplete="reloadChips()" /> 
+                    </f:facet>
+                </p:panel>
+            </p:outputPanel>
+            <p:remoteCommand name="reloadChips" process="@this" action="#{asignacionDistribuidorBean.obtenerChips}" 
+                             update="@([id$=pnlDataAsignaciones])" />
+            <p:outputPanel class="w3-card-8 w3-margin-top w3-round-medium" id="pnlDataAsignaciones">
+                <p:panel styleClass="w3-container blockable w3-padding-0" >
+                    <f:facet name="header">
+                        Chips asignados
+                    </f:facet>
+
+                    <p:dataTable id="asuper" value="#{asignacionDistribuidorBean.chips}" var="asignaciones"
+                                 style="margin-top:0" emptyMessage="No se ha seleccionado el tipo de parámetro." sortBy="#{asignaciones.fechaAsignacionSupervisor}" sortOrder="descending">
+                        <p:column headerText="Distribuidor">
+                            <h:outputText value="#{asignaciones.usuarioCoordinador.nombre} #{asignaciones.usuarioCoordinador.paterno} #{asignaciones.usuarioCoordinador.materno}" />
+                        </p:column>
+                        <p:column headerText="ICCID">
+                            <h:outputText value="#{asignaciones.serie}" />
+                        </p:column>
+                        <p:column headerText="Fecha de Asignación">
+                            <h:outputText value="#{asignaciones.fechaUltModificacion}" >
+                                <f:convertDateTime pattern="dd-MM-yyyy HH:mm:ss" timeZone="America/Mexico_City"  />
+                            </h:outputText>
+                        </p:column>
+                    </p:dataTable>
+                </p:panel>
+            </p:outputPanel>
+        </h:form>
+    </ui:define>
+
+</ui:composition>

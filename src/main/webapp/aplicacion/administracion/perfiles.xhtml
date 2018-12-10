@@ -1,0 +1,147 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/adminLTE/template.xhtml" 
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <ui:define name="headerContent">
+        <h2 style="margin: 0px 15px;">
+            <span class="fa fa-home w3-margin-right w3-margin-left" /> Perfiles
+        </h2>        
+    </ui:define>
+
+    <ui:define name="centerContent">
+        <p:growl id="msgs" showDetail="true" showSummary="true" />
+        <h:form id="formData" >
+
+            <p:outputPanel rendered="#{confPerfilesBean.showPnlConsulta}" styleClass="blockable" >
+                <p:panel header="Catálogo de Perfiles">
+                    <p:menubar>
+                        <p:menuitem value="Nuevo" icon="fa fa-plus" process="@this" action="#{confPerfilesBean.onCreateRol()}" update="@form" />
+                    </p:menubar>
+                    <p:dataTable var="registro" value="#{confPerfilesBean.currents}" rows="25"
+                                 id="dtDatos" paginator="true" rowKey="#{registro.id}" emptyMessage="No existe información."
+                                 paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                 rowsPerPageTemplate="25,50" paginatorPosition="bottom" paginatorAlwaysVisible="false"
+                                 widgetVar="wvDatos" rowIndexVar="rowIndex" resizableColumns="true" scrollable="true">
+
+                        <p:column headerText="Clave Rol">
+                            <h:outputText value="#{registro.claveRol}" />
+                        </p:column>
+
+                        <p:column headerText="Descripción">
+                            <h:outputText value="#{registro.descripcion}" />
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" update="@([id$=formData]) @([id$=msgs])" title="Actualizar permisos" 
+                                           action="#{confPerfilesBean.onChangePermisos()}" >
+                                <span class="fa fa-list"></span> 
+                                <f:setPropertyActionListener value="#{registro}" target="#{confPerfilesBean.selectedCurrent}" />
+                            </p:commandLink> 
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" update="@([id$=formData]) @([id$=formNewRegistro]) @([id$=msgs])" title="Actualizar registro" 
+                                           action="#{confPerfilesBean.onEditUser}" >
+                                <span class="fa fa-edit"></span> 
+                                <f:setPropertyActionListener value="#{registro}" target="#{confPerfilesBean.current}" />
+                                <f:setPropertyActionListener value="update" target="#{confPerfilesBean.tipoActualizacion}" />
+                            </p:commandLink> 
+                        </p:column>
+
+                        <p:column style="width:35px; text-align: center" >
+                            <p:commandLink process="@this" action="#{confPerfilesBean.delete}" update="@([id$=formData]) @([id$=msgs])" title="Eliminar registro" >
+                                <span class="fa fa-trash"></span> 
+                                <f:setPropertyActionListener value="#{registro}" target="#{confPerfilesBean.selectedCurrent}" />
+                                <p:confirm header="Confirmación" message="¿Está seguro de eliminar el perfil seleccionado?" icon="ui-icon-alert" />
+                            </p:commandLink> 
+                        </p:column>
+
+                    </p:dataTable>
+                </p:panel>
+
+            </p:outputPanel>
+
+            <p:outputPanel rendered="#{confPerfilesBean.showPnlModificacion}" styleClass="blockable" >
+                <p:focus for="pnlActualizacion" />
+                <p:panel id="pnlActualizacion" >
+                    <f:facet name="header">
+                        <h:outputLabel value="Alta de Rol" rendered="#{confPerfilesBean.tipoActualizacion eq 'create'}" />
+                        <h:outputLabel value="Modificación de Rol" rendered="#{confPerfilesBean.tipoActualizacion eq 'update'}" />
+                    </f:facet>
+
+                    <div class="ui-g ui-fluid">
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel for="claveRol" value="Clave_Rol: " />
+                            </div>
+                            <p:inputText id="claveRol" value="#{confPerfilesBean.current.claveRol}" maxlength="20" required="true" 
+                                         disabled="#{confPerfilesBean.tipoActualizacion eq 'update'}" />
+                        </div>
+
+                        <div class="ui-g-12 ui-lg-6 ui-xl-4">
+                            <div>
+                                <p:outputLabel value="Descripción" for="descripcion" />                                
+                            </div>
+                            <p:inputText id="descripcion" value="#{confPerfilesBean.current.descripcion}" maxlength="50" required="true" 
+                                         onkeyup="this.value = this.value.toUpperCase();" />
+                        </div>
+
+                    </div>
+
+
+                    <f:facet name="footer">
+                        <p:commandButton icon="fa fa-save" value="Aceptar" process="@(id$=pnlActualizacion)" action="#{confPerfilesBean.create()}" 
+                                         update="@form @([id$=msgs])" rendered="#{confPerfilesBean.tipoActualizacion eq 'create'}" />
+
+                        <p:commandButton icon="fa fa-save" value="Actualizar" process="@(id$=pnlActualizacion)" action="#{confPerfilesBean.update()}"
+                                         update="@form @([id$=msgs])" rendered="#{confPerfilesBean.tipoActualizacion eq 'update'}" />
+
+                        <p:commandButton icon="fa fa-save" value="Cancelar" process="@this" action="#{confPerfilesBean.showPanelConsulta()}" 
+                                         update="@form @([id$=msgs])" >
+                            <f:setPropertyActionListener target="#{confPerfilesBean.tipoActualizacion}" value="#{null}" />
+                            <p:resetInput target="pnlActualizacion" />
+                        </p:commandButton>
+
+                    </f:facet>
+                </p:panel>
+            </p:outputPanel>
+
+            <p:outputPanel id="pnlPermisos" rendered="#{confPerfilesBean.showPnlPermisos}" styleClass="blockable" >
+                <p:panel >
+                    <f:facet name="header">
+                        Actualización de permisos
+                    </f:facet>
+                    <p:treeTable id="treeTable" value="#{confPerfilesBean.treenode}" var="opc" selectionMode="checkbox" 
+                                 selection="#{confPerfilesBean.selectedOpciones}" >
+
+                        <p:column >
+                            <i class="#{opc.imagen}" />
+                            <h:outputText value=" #{opc.nombre}" />
+                        </p:column>
+                        <p:column headerText="Size">
+                            <h:outputText value="#{opc.url}" />
+                        </p:column>
+
+                    </p:treeTable>
+
+                    <f:facet name="footer">
+                        <p:commandButton value="Actualizar permisos" icon="fa fa-save" process="@([id$=pnlPermisos])" 
+                                         action="#{confPerfilesBean.actualizarPermisos}" update="@form @([id$=msgs])" >
+                            <p:confirm header="Confirmación" message="¿Está seguro de cambiar los permisos del perfil?" icon="ui-icon-alert" />
+                        </p:commandButton>
+                        <p:spacer />
+                        <p:commandButton value="Regresar" icon="fa fa-arrow-circle-left" process="@this" 
+                                         action="#{confPerfilesBean.showPanelConsulta()}" update="@form @([id$=msgs])" />
+
+                    </f:facet>
+
+                </p:panel>
+            </p:outputPanel>
+
+        </h:form>
+    </ui:define>
+
+</ui:composition>

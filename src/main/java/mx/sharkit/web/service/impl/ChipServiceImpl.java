@@ -23,6 +23,7 @@ import mx.sharkit.web.service.CierreChipService;
 import mx.sharkit.web.service.TransaccionService;
 import mx.sharkit.web.service.UsuarioRolService;
 import mx.sharkit.web.view.util.TypeCast;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Transactional
-public class ChipServiceImpl extends BaseServiceImpl<Chip, Integer> implements ChipService, Serializable {
+public class ChipServiceImpl extends BaseServiceImpl<Chip, Long> implements ChipService, Serializable {
 
     @Autowired
     private ChipHistoricoService chipHistoricoService;
@@ -44,7 +45,7 @@ public class ChipServiceImpl extends BaseServiceImpl<Chip, Integer> implements C
 
     @Autowired
     private UsuarioRolService usuarioRolService;
-    
+
     @Autowired
     private CierreChipService cierreChipService;
 
@@ -211,11 +212,22 @@ public class ChipServiceImpl extends BaseServiceImpl<Chip, Integer> implements C
 
         for (Map<String, Object> map : chips) {
             String serie = TypeCast.toString(map.get("serie"));
+            if (StringUtils.length(serie) == 19) {
+                serie += "F";
+            }
             String distribuidor = TypeCast.toString(map.get("distribuidor"));
             String subdistribuidor = TypeCast.toString(map.get("subdistribuidor"));
+            Integer productoId = TypeCast.toInteger(map.get("productoId"));
+            Long consecutivo = TypeCast.toLong(map.get("consecutivo"));
+            Long consecutivoTotal = TypeCast.toLong(map.get("consecutivoTotal"));
+            Date fechaEscaneo = (Date) map.get("fechaEscaneo");
+            String caja = TypeCast.toString(map.get("caja"));
+            Date fechaEntrega = (Date) map.get("fechaEntrega");
+            String orden = TypeCast.toString(map.get("orden"));
+            String factura = TypeCast.toString(map.get("factura"));
 
             Chip chip = new Chip();
-            chip.setSerie(serie + "F");
+            chip.setSerie(serie);
             chip.setEstatusId(Estatus.ID_ESTATUS_CHIP_NUEVO);
             chip.setFecha(now);
             chip.setDocumento(TypeCast.toString(map.get("compania")));
@@ -225,6 +237,14 @@ public class ChipServiceImpl extends BaseServiceImpl<Chip, Integer> implements C
             chip.setModelo("");
             chip.setCantidad(0);
             chip.setCostoCompra(BigDecimal.ZERO);
+            chip.setProductoId(productoId);
+            chip.setConsecutivo(consecutivo);
+            chip.setConsecutivoTotal(consecutivoTotal);
+            chip.setFechaEscaneo(fechaEscaneo);
+            chip.setCaja(caja);
+            chip.setFechaEntrega(fechaEntrega);
+            chip.setOrden(orden);
+            chip.setFactura(factura);
             save(chip);
 
             ChipHistoricoEstatus historicoEstatus = new ChipHistoricoEstatus();
@@ -458,7 +478,7 @@ public class ChipServiceImpl extends BaseServiceImpl<Chip, Integer> implements C
     public Integer retornoChipsAlmacenPromotor(List<String> series, Long idDistribuidor, Long idSupervisor, Long idPromotor, String username) throws Exception {
         int actualizados = 0;
         Date fechaAsignacion = new Date();
-        
+
         for (String serie : series) {
             Chip chip = findBySerie(serie);
             chip.setUsuarioSupervisorId(idSupervisor);
@@ -484,7 +504,7 @@ public class ChipServiceImpl extends BaseServiceImpl<Chip, Integer> implements C
     @Override
     public void cierreChipsVenta(List<Chip> selectedChips, BigDecimal totalVenta, Long idSupervisor, Long idVendedor, Date fechaIni, Date fechaFin, String username) throws Exception {
         Date now = new Date();
-        CierreChip cierre = new  CierreChip(idVendedor, totalVenta, idSupervisor, now, fechaIni, fechaFin);
+        CierreChip cierre = new CierreChip(idVendedor, totalVenta, idSupervisor, now, fechaIni, fechaFin);
         cierreChipService.save(cierre);
         for (Chip selectedChip : selectedChips) {
             selectedChip.setCierreChipId(cierre.getId());
@@ -520,7 +540,7 @@ public class ChipServiceImpl extends BaseServiceImpl<Chip, Integer> implements C
                 chip.setEstatusId(Estatus.ID_ESTATUS_VENDIDO);
                 chip.setFechaEstatus(now);
                 chip.setFechaUltModificacion(now);
-                
+
                 ChipHistoricoEstatus historicoEstatus = new ChipHistoricoEstatus();
                 historicoEstatus.setEstatusId(Estatus.ID_ESTATUS_VENDIDO);
                 historicoEstatus.setFechaEstatus(now);
@@ -529,10 +549,16 @@ public class ChipServiceImpl extends BaseServiceImpl<Chip, Integer> implements C
                 if (chipHistoricoService.saveChipAndHistory(chip, historicoEstatus)) {
                     save(chip);
                     actualizados++;
-                } 
-            } 
+                }
+            }
         }
         return actualizados;
+    }
+
+    @Override
+    public void borraChipConDependencias(Long chipId) throws Exception {
+        chipHistoricoService.deleteByChipId(chipId);
+        deleteById(chipId);
     }
 
 }

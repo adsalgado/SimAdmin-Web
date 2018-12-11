@@ -7,5 +7,5 @@ import mx.sharkit.web.model.Chip;
  *
  * @author aalquisira
  */
-public interface ChipRepository extends BaseRepository<Chip, Integer>{
+public interface ChipRepository extends BaseRepository<Chip, Long>{
 }

@@ -94,8 +94,7 @@ public class Chip implements Serializable {
     private Integer folio;
     @Column(name = "tipo_venta_id")
     private Integer tipoVentaId;
-    @Column(name = "producto_id")
-    private Integer productoId;
+
     @Column(name = "costo")
     private BigDecimal costo;
 
@@ -232,6 +231,32 @@ public class Chip implements Serializable {
             foreignKey = @ForeignKey(name = "fk_chip_cierre"))
     @ManyToOne(optional = true)
     private CierreChip cierreChip;
+
+    @Column(name = "producto_id")
+    private Integer productoId;
+
+    @Column(name = "consecutivo")
+    private Long consecutivo;
+
+    @Column(name = "consecutivo_total")
+    private Long consecutivoTotal;
+
+    @Column(name = "fecha_escaneo")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fechaEscaneo;
+
+    @Column(name = "caja", length = 64)
+    private String caja;
+
+    @Column(name = "fecha_entrega")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fechaEntrega;
+
+    @Column(name = "orden", length = 32)
+    private String orden;
+
+    @Column(name = "factura", length = 32)
+    private String factura;
 
     public Chip() {
     }
@@ -651,6 +676,62 @@ public class Chip implements Serializable {
 
     public void setCierreChip(CierreChip cierreChip) {
         this.cierreChip = cierreChip;
+    }
+
+    public Long getConsecutivo() {
+        return consecutivo;
+    }
+
+    public void setConsecutivo(Long consecutivo) {
+        this.consecutivo = consecutivo;
+    }
+
+    public Long getConsecutivoTotal() {
+        return consecutivoTotal;
+    }
+
+    public void setConsecutivoTotal(Long consecutivoTotal) {
+        this.consecutivoTotal = consecutivoTotal;
+    }
+
+    public Date getFechaEscaneo() {
+        return fechaEscaneo;
+    }
+
+    public void setFechaEscaneo(Date fechaEscaneo) {
+        this.fechaEscaneo = fechaEscaneo;
+    }
+
+    public String getCaja() {
+        return caja;
+    }
+
+    public void setCaja(String caja) {
+        this.caja = caja;
+    }
+
+    public Date getFechaEntrega() {
+        return fechaEntrega;
+    }
+
+    public void setFechaEntrega(Date fechaEntrega) {
+        this.fechaEntrega = fechaEntrega;
+    }
+
+    public String getOrden() {
+        return orden;
+    }
+
+    public void setOrden(String orden) {
+        this.orden = orden;
+    }
+
+    public String getFactura() {
+        return factura;
+    }
+
+    public void setFactura(String factura) {
+        this.factura = factura;
     }
 
     @Override

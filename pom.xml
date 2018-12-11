@@ -23,8 +23,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <final.name>SimAdmin-Web</final.name>
-        <!--<project.scope>provided</project.scope>-->
-        <project.scope>compile</project.scope>
+        <project.scope>provided</project.scope>
+        <!--<project.scope>compile</project.scope>-->
 
         <!-- Uncomment this if you want to use tomcat7
         <tomcat.version>7.0.72</tomcat.version>

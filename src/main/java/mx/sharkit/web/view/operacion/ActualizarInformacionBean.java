@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ViewScoped;
@@ -78,7 +80,7 @@ public class ActualizarInformacionBean implements Serializable {
         obtenerEstatusPortabilidad();
         obtenerEstatusProceso();
         obtenerCompania();
-        search();
+        obtenerChips();
     }
 
     public void obtenerEstatusInicial() {
@@ -189,7 +191,7 @@ public class ActualizarInformacionBean implements Serializable {
             
             if (Objects.equals(chipTemporal.getEstatusId(), Estatus.ID_ESTATUS_VENDIDO) && estatusActual < Estatus.ID_ESTATUS_VENDIDO) {
                 PFMessages.showMessageError("No puede cambiar el estatus a vendido porque el chip no ha sido asignado");
-                search();
+//                search();
                 return;
             }
 
@@ -263,9 +265,20 @@ public class ActualizarInformacionBean implements Serializable {
             }
             chipService.update(chipTemporal);
             PFMessages.showMessageInfo("Datos actualizados correctamente");
-            search();
+//            search();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    
+    public void deleteChip() {
+        try {
+            chipService.borraChipConDependencias(selectedChip.getId());
+            PFMessages.showMessageInfo("Datos actualizados correctamente");
+//            search();
+        } catch (Exception ex) {
+            Logger.getLogger(ActualizarInformacionBean.class.getName()).log(Level.SEVERE, null, ex);
+            PFMessages.showMessageError("Error: " + ex.getMessage());
         }
     }
 

@@ -63,7 +63,7 @@
                     <f:facet name="header">
                         Resultado:
                     </f:facet>
-                    <p:remoteCommand name="actualizaTabla" process="@([id$=pnlBusqueda])" action="#{actualizarInformacionBean.obtenerChips()}" update="@([id$=msgs]) @([id$=dtDN]) @([id$=pnlChipsInfo]) @([id$=pnlBusqueda])" />
+                    <p:remoteCommand name="actualizaTabla" process="@this @([id$=pnlBusqueda])" action="#{actualizarInformacionBean.obtenerChips()}" update="@([id$=msgs]) @([id$=dtDN]) @([id$=pnlChipsInfo]) @([id$=pnlBusqueda])" />
                     <p:dataTable id="dtDN" value="#{actualizarInformacionBean.chips}" editable="true" var="updateInfo" paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
                                  paginator="true" rows="10" style="margin-top:0; margin-bottom:20px" emptyMessage="No se ha seleccionado el tipo de parámetro." resizableColumns="true" scrollable="true" scrollWidth="150%">
 
@@ -72,7 +72,16 @@
                         
                         <p:column style="width:32px">
                             <p:rowEditor />
-                        </p:column>   
+                        </p:column> 
+                        <p:column style="width:32px">
+                            <p:commandLink process="@this" action="#{actualizarInformacionBean.deleteChip}" 
+                                           update="@([id$=msgs]) @([id$=dtDN]) @([id$=pnlChipsInfo]) @([id$=pnlBusqueda])" 
+                                           title="Eliminar registro" oncomplete="actualizaTabla();" >
+                                <span class="fa fa-trash"></span> 
+                                <f:setPropertyActionListener value="#{updateInfo}" target="#{actualizarInformacionBean.selectedChip}" />
+                                <p:confirm header="Confirmación" message="¿Está seguro de eliminar el sim seleccionado?" icon="ui-icon-alert" />
+                            </p:commandLink> 
+                        </p:column> 
                         <p:column headerText="ICCID" style="width: 12%">
                             <h:outputText value="#{updateInfo.serie}" />
                         </p:column>

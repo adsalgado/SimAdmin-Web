@@ -22,11 +22,14 @@ import lombok.Setter;
 import mx.sharkit.web.carga.CfgArchivoCarga;
 import mx.sharkit.web.carga.FileData;
 import mx.sharkit.web.carga.ResponseValidate;
+import mx.sharkit.web.model.Producto;
 import mx.sharkit.web.model.UsuarioRol;
 import mx.sharkit.web.security.SSUserDetails;
 import mx.sharkit.web.service.ArchivoCargaService;
 import mx.sharkit.web.service.ChipService;
 import mx.sharkit.web.service.DynScriptService;
+import mx.sharkit.web.service.ProductoService;
+import mx.sharkit.web.view.util.PFMessages;
 import mx.sharkit.web.view.util.TypeCast;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,13 +53,16 @@ public class CargaChipsDistribuidorBean implements Serializable, Observer {
 
     private static final Logger LOGGER = Logger.getLogger(CargaChipsDistribuidorBean.class.getName());
     private static final String CLAVE_PROCESO = "ARCHIVOS_CARGA";
-    private static final String CLAVE_SCRIPT = "CARGA_CHIPS_DISTRIBU";
+    private static final String CLAVE_SCRIPT = "CARGA_SIMS";
 
     @Autowired
     ArchivoCargaService archivoCargaService;
 
     @Autowired
     ChipService chipService;
+    
+    @Autowired
+    ProductoService productoService;
 
     /**
      * Carga de archivo de chips
@@ -68,11 +74,13 @@ public class CargaChipsDistribuidorBean implements Serializable, Observer {
     private boolean showPanelChips;
     private Map<String, Object> distribuidores;
     private Map<String, Object> subdistribuidores;
+    private Map<String, Producto> productos;
 
     @PostConstruct
     public void init() {
         userDetails = (SSUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         cargaUsuarios();
+        cargaProductos();
         ocultaPanelChips();
     }
 
@@ -168,6 +176,7 @@ public class CargaChipsDistribuidorBean implements Serializable, Observer {
             String serie = TypeCast.toString(response.getData().get("serie"));
             String distribuidor = TypeCast.toString(response.getData().get("distribuidor"));
             String subdistribuidor = TypeCast.toString(response.getData().get("subdistribuidor"));
+            String marca = TypeCast.toString(response.getData().get("marca"));
             if (!StringUtils.isBlank(distribuidor) && !distribuidores.containsKey(distribuidor)) {
                 response.setValid(false);
                 response.setMessage("El usuario distribuidor '" + distribuidor + "' es inválido");
@@ -176,7 +185,15 @@ public class CargaChipsDistribuidorBean implements Serializable, Observer {
                 response.setValid(false);
                 response.setMessage("El usuario subdistribuidor '" + subdistribuidor + "' es inválido");
                 errores.add(response);
+            } else if (!StringUtils.isBlank(marca) && !productos.containsKey(marca)) {
+                response.setValid(false);
+                response.setMessage("El producto '" + marca + "' es inválido");
+                errores.add(response);
             } else {
+                Producto prd = productos.get(marca);
+                if (prd != null) {
+                    response.getData().put("productoId", prd.getId());
+                }
                 chips.add(response.getData());
             }
 
@@ -216,6 +233,24 @@ public class CargaChipsDistribuidorBean implements Serializable, Observer {
             subdistribuidores.put(usuarioRol.getUsuario().getUserName(), usuarioRol.getUsuario());
         }
 
+    }
+    
+    public void limpiarBase() {
+        try {
+            chipService.limpiarBase();
+            PFMessages.showMessageInfo("LA OPERACIÓN SE REALIZÓ CORRECTAMENTE.");
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Ocurrió un error al limpiar la base de datos. ", e);
+            PFMessages.showMessageErrorBackEnd("Ocurrió un error al limpiar la base de datos. " + e.getMessage());
+        }
+    }
+
+    private void cargaProductos() {
+        productos = new HashMap<>();
+        List<Producto> prods = productoService.findAll();
+        for (Producto prod : prods) {
+            productos.put(prod.getMarca(), prod);
+        }
     }
 
 }

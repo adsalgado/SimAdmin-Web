@@ -25,4 +25,5 @@ import mx.sharkit.web.model.ChipHistoricoEstatus;
  */
 public interface ChipHistoricoService extends BaseService<ChipHistoricoEstatus, Integer>{
     boolean saveChipAndHistory(Chip c, ChipHistoricoEstatus che);
+    void deleteByChipId(Long chipId) throws Exception;
 }

@@ -8,5 +8,5 @@ import mx.sharkit.web.model.Transaccion;
  * @author Adrián Salgado
  */
 public interface TransaccionService extends BaseService<Transaccion, Long> {
-
+    
 }

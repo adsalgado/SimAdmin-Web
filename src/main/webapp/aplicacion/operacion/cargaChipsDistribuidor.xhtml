@@ -23,7 +23,7 @@
                     </p:menuitem>  
                     <sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_ROOT')">
                         <p:menuitem value="Limpiar Base" icon="fa fa-ban" process="@this" 
-                                    action="#{cargaChipsBean.limpiarBase}" update="@([id$=formCarga])" 
+                                    action="#{cargaChipsDistribuidorBean.limpiarBase}" update="@([id$=formCarga])" 
                                     class="w3-margin-right" >
                             <p:confirm header="Confirmation" message="¿Deseas eliminar toda las base de datos?" icon="ui-icon-alert" />
                         </p:menuitem>    

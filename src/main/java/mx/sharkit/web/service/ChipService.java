@@ -12,7 +12,7 @@ import mx.sharkit.web.security.SSUserDetails;
  *
  * @author aalquisira
  */
-public interface ChipService extends BaseService<Chip, Integer>{
+public interface ChipService extends BaseService<Chip, Long>{
     Chip findBySerie(String serie);
     String saveChips(List<Chip> chips);
     void saveChipsDistribuidor(List<Map<String, Object>> chips, SSUserDetails userDetails) throws Exception;
@@ -29,5 +29,6 @@ public interface ChipService extends BaseService<Chip, Integer>{
     Integer reasignarChipsSubdistribuidorByRango(String serie, String serieFinal, Long supervisorId, Long supervisorNuevoId, String username) throws Exception;
     Integer retornoChipsAlmacenPromotor(List<String> series, Long idDistribuidor, Long idSupervisor, Long idPromotor, String username) throws Exception;
     void cierreChipsVenta(List<Chip> selectedChips, BigDecimal totalVenta, Long idSupervisor, Long idVendedor, Date fechaIni, Date fechaFin, String username) throws Exception;
-    Integer actualizarChipsVendidos(List<Map<String, Object>> chips, SSUserDetails userDetails) throws Exception;    
+    Integer actualizarChipsVendidos(List<Map<String, Object>> chips, SSUserDetails userDetails) throws Exception;   
+    void borraChipConDependencias(Long chipId) throws Exception;
 }

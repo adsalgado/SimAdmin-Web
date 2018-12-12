@@ -72,8 +72,29 @@ public class AltaController {
             Integer dn = null;
             Long dnLong = null;
             Double latitud = null, longitud = null, costo = null;
+            //NUEVOS CAMPOS AGREGADOS 12/12/2018
+            String numeroTemporal = null;
+            String numeroDonador = null;
+            String numeroTelefonico = null;
+            Integer idCompaniaDonadora = null;
+            Integer idCompaniaPortabilidad = null;
             for (Map.Entry<String, Object> entry : mapBody.entrySet()) {
                 switch (entry.getKey()) {
+                    case "idCompaniaDonadora":
+                        idCompaniaDonadora = (Integer) entry.getValue();
+                        break;
+                    case "idCompaniaPortabilidad":
+                        idCompaniaPortabilidad = (Integer) entry.getValue();
+                        break;
+                    case "numeroDonador":
+                        numeroDonador = (String) entry.getValue();
+                        break;
+                    case "numeroTemporal":
+                        numeroTemporal = (String) entry.getValue();
+                        break;
+                    case "numeroTelefonico":
+                        numeroTelefonico = (String) entry.getValue();
+                        break;
                     case "nombre":
                         nombre = (String) entry.getValue();
                         break;
@@ -258,6 +279,18 @@ public class AltaController {
                         chip.setProductoId(idProducto);
 //                        chip.setCosto(TypeCast.toBigDecimal(costo));
                         chip.setCosto(new BigDecimal(costo));
+                        /*
+                        String numeroTemporal = null;
+                        String numeroDonador = null;
+                        String numeroTelefonico = null;
+                        Integer idCompaniaDonadora = null;
+                        Integer idCompaniaPortabilidad = null;
+                         */
+                        chip.setNumeroTemporal(numeroTemporal);
+                        chip.setNumeroDonador(numeroDonador);
+                        chip.setNumeroTelefonico(numeroTelefonico);
+                        chip.setCompaniaDonadoraId(idCompaniaDonadora);
+                        chip.setCompaniaPortabilidadId(idCompaniaPortabilidad);
 
 //                        sess.flush();
 //                        sess.persist(chip);

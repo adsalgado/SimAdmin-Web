@@ -258,6 +258,35 @@ public class Chip implements Serializable {
     @Column(name = "factura", length = 32)
     private String factura;
 
+    
+    //Campos nuevos agregados 12/12/2018
+    @Column(name = "numero_temporal", length = 20)
+    private String numeroTemporal;
+    @Column(name = "numero_telefonico", length = 20)
+    private String numeroTelefonico;
+    @Column(name = "numero_donador", length = 20)
+    private String numeroDonador;
+    
+    @JoinColumn(name = "compania_donadora_id", referencedColumnName = "id", insertable = false, updatable = false,
+            foreignKey = @ForeignKey(name = "fk_chip_compania_donadora"))
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
+    @ManyToOne(optional = true)
+    private Compania companiaDonadora;
+
+    @Basic(optional = true)
+    @Column(name = "compania_donadora_id")
+    private Integer companiaDonadoraId;
+    
+    @JoinColumn(name = "compania_portabilidad_id", referencedColumnName = "id", insertable = false, updatable = false,
+            foreignKey = @ForeignKey(name = "fk_chip_compania_donadora"))
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
+    @ManyToOne(optional = true)
+    private Compania companiaPortabilidad;
+
+    @Basic(optional = true)
+    @Column(name = "compania_portabilidad_id")
+    private Integer companiaPortabilidadId;
+
     public Chip() {
     }
 
@@ -732,6 +761,62 @@ public class Chip implements Serializable {
 
     public void setFactura(String factura) {
         this.factura = factura;
+    }
+
+    public String getNumeroTemporal() {
+        return numeroTemporal;
+    }
+
+    public void setNumeroTemporal(String numeroTemporal) {
+        this.numeroTemporal = numeroTemporal;
+    }
+
+    public String getNumeroTelefonico() {
+        return numeroTelefonico;
+    }
+
+    public void setNumeroTelefonico(String numeroTelefonico) {
+        this.numeroTelefonico = numeroTelefonico;
+    }
+
+    public String getNumeroDonador() {
+        return numeroDonador;
+    }
+
+    public void setNumeroDonador(String numeroDonador) {
+        this.numeroDonador = numeroDonador;
+    }
+
+    public Compania getCompaniaDonadora() {
+        return companiaDonadora;
+    }
+
+    public void setCompaniaDonadora(Compania companiaDonadora) {
+        this.companiaDonadora = companiaDonadora;
+    }
+
+    public Integer getCompaniaDonadoraId() {
+        return companiaDonadoraId;
+    }
+
+    public void setCompaniaDonadoraId(Integer companiaDonadoraId) {
+        this.companiaDonadoraId = companiaDonadoraId;
+    }
+
+    public Compania getCompaniaPortabilidad() {
+        return companiaPortabilidad;
+    }
+
+    public void setCompaniaPortabilidad(Compania companiaPortabilidad) {
+        this.companiaPortabilidad = companiaPortabilidad;
+    }
+
+    public Integer getCompaniaPortabilidadId() {
+        return companiaPortabilidadId;
+    }
+
+    public void setCompaniaPortabilidadId(Integer companiaPortabilidadId) {
+        this.companiaPortabilidadId = companiaPortabilidadId;
     }
 
     @Override
